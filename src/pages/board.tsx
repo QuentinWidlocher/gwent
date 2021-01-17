@@ -1,11 +1,18 @@
 import React from 'react'
+import { BoardComponent } from '../components/Board/Board'
+import { Card } from '../models/card'
 
-interface BoardProps {
+interface BoardPageProps {
 
 }
 
-export function BoardPage(props: BoardProps = {}) {
+export function BoardPage(props: BoardPageProps = {}) {
+
+    const cards: Card[] = ['Gérard', 'Béatrice', 'Jennifer', 'Cyrile'].map(title => ({ title }))
+
     return (
-        <h1>GWENT MON GARS</h1>
+        <BoardComponent
+            cards={cards}
+        />
     )
 }

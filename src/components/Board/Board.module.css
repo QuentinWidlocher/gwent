@@ -1,0 +1,26 @@
+.board {
+    height: 100vh;
+    width: 100vw;
+    background-color: #8b5a2b;
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-rows: 1fr auto;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+}
+
+.scores {
+    grid-area: 1 / 1 / 3 / 2;
+}
+
+.battlefield {
+    grid-area: 1 / 2 / 2 / 3;
+}
+
+.decks {
+    grid-area: 1 / 3 / 3 / 4;
+}
+
+.playerHand {
+    grid-area: 2 / 2 / 3 / 3;
+}

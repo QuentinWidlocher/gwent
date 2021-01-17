@@ -1,0 +1,13 @@
+.card {
+    min-height: 6rem;
+    width: 4rem;
+    border: solid black 2px;
+    border-radius: 0.5rem;
+    display: flex;
+    justify-content: center;
+    background-color: white;
+}
+
+.title {
+    font-size: smaller;
+}
