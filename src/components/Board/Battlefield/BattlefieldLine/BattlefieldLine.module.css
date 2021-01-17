@@ -8,7 +8,6 @@
     box-sizing: border-box;
 }
 
-.darkLine {
-    composes: line;
+.dark {
     background-color: #724923;
 }

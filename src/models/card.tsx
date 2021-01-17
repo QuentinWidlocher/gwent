@@ -2,7 +2,7 @@ import React from "react";
 import { CardComponent } from "../components/Board/Card/Card";
 
 export interface Card {
-    title: string;
+    title: string
 }
 
 export function cardToComponent(card: Card) {

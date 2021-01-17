@@ -1,11 +1,29 @@
 .card {
-    min-height: 6rem;
-    width: 4rem;
+    --card-width: 4rem;
+    --card-height: 6rem;
+    --selection-color: lightblue;
+}
+
+.card {
+    min-height: var(--card-height);
+    width: var(--card-width);
     border: solid black 2px;
     border-radius: 0.5rem;
     display: flex;
     justify-content: center;
     background-color: white;
+}
+
+.selected {
+    background-color: var(--selection-color);
+}
+
+.selectable {
+    cursor: pointer;
+}
+
+.selectable:hover:not(.selected) {
+    background-color: azure;
 }
 
 .title {
