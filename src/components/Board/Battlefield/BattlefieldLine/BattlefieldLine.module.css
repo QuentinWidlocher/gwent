@@ -2,6 +2,7 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
+    align-items: center;
     background-color: #8b5a2b;
     border: solid 2px #724923;
     height: 100%;
@@ -14,4 +15,26 @@
 
 .canBeSelected:hover {
     background-color: #b97739;
+}
+
+.cards {
+    margin-left: auto;
+    margin-right: auto;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.strength {
+    margin-left: 0.5rem;
+    color: white;
+    font-weight: bold;
+    font-size: large;
+    border: solid 2px white;
+    border-radius: 100%;
+    padding: 0.5rem;
+    min-width: 1.28rem;
+    text-align: center;
 }

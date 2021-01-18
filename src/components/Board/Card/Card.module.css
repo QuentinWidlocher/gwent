@@ -28,6 +28,15 @@
     background-color: azure;
 }
 
+.strength {
+    font-size: small;
+    padding: 0.5rem;
+    min-width: 0.9rem;
+    text-align: center;
+    border: solid 1px black;
+    border-radius: 100%;
+}
+
 .title {
     font-size: smaller;
 }

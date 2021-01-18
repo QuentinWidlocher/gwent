@@ -6,9 +6,10 @@ import styles from "./BattlefieldLine.module.css"
 export interface BattlefieldLineProps {
     cards: Card[],
     type: BATTLEFIELD_LINE,
+    totalStrength: number
     dark?: boolean,
     canBeSelected?: boolean,
-    onClick?: () => void
+    onClick?: () => void,
 }
 
 export function BattlefieldLineComponent(props: BattlefieldLineProps) {
@@ -21,7 +22,10 @@ export function BattlefieldLineComponent(props: BattlefieldLineProps) {
             `}
             onClick={() => !!props.onClick && props.onClick()}
         >
-            { props.cards.map(cardToComponent)}
+            <span className={styles.strength}>{props.totalStrength}</span>
+            <div className={styles.cards}>
+                {props.cards.map(cardToComponent)}
+            </div>
         </div>
     )
 }

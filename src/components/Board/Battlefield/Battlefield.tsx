@@ -1,3 +1,4 @@
+import { prop, sum } from "ramda"
 import React from "react"
 import { Card } from "../../../models/card"
 import { BATTLEFIELD_LINE } from "../../../models/constants"
@@ -38,6 +39,7 @@ export function BattlefieldComponent(props: BattlefieldProps) {
             <BattlefieldLineComponent
                 cards={line.cards}
                 type={line.type}
+                totalStrength={sum(line.cards.map(c => c.strength)) ?? 0}
                 canBeSelected={line.canBeSelected}
                 dark={i % 2 == 0}
                 onClick={() => !!props.onLineClick && props.onLineClick(line.type)}
