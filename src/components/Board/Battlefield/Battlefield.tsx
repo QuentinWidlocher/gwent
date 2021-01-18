@@ -21,19 +21,20 @@ export interface BattlefieldProps {
     playerRangedLine: Card[],
     playerSiegeLine: Card[],
     onLineClick?: (lineType: BATTLEFIELD_LINE) => void,
+    playerLinesCanBeSelected?: boolean
 }
 
-type LineConfig = { type: BATTLEFIELD_LINE, style: string, cards: Card[] }
+type LineConfig = { type: BATTLEFIELD_LINE, style: string, cards: Card[], canBeSelected: boolean }
 
 export function BattlefieldComponent(props: BattlefieldProps) {
 
     const linesConfig: LineConfig[] = [
-        { type: BATTLEFIELD_LINE.ENEMY_SIEGE, style: styles.enemySiegeLine, cards: props.enemySiegeLine },
-        { type: BATTLEFIELD_LINE.ENEMY_RANGED, style: styles.enemyRangedLine, cards: props.enemyRangedLine },
-        { type: BATTLEFIELD_LINE.ENEMY_MELEE, style: styles.enemyMeleeLine, cards: props.enemyMeleeLine },
-        { type: BATTLEFIELD_LINE.PLAYER_SIEGE, style: styles.playerMeleeLine, cards: props.playerMeleeLine },
-        { type: BATTLEFIELD_LINE.PLAYER_RANGED, style: styles.playerRangedLine, cards: props.playerRangedLine },
-        { type: BATTLEFIELD_LINE.PLAYER_MELEE, style: styles.playerSiegeLine, cards: props.playerSiegeLine },
+        { type: BATTLEFIELD_LINE.ENEMY_SIEGE, style: styles.enemySiegeLine, cards: props.enemySiegeLine, canBeSelected: false },
+        { type: BATTLEFIELD_LINE.ENEMY_RANGED, style: styles.enemyRangedLine, cards: props.enemyRangedLine, canBeSelected: false },
+        { type: BATTLEFIELD_LINE.ENEMY_MELEE, style: styles.enemyMeleeLine, cards: props.enemyMeleeLine, canBeSelected: false },
+        { type: BATTLEFIELD_LINE.PLAYER_MELEE, style: styles.playerMeleeLine, cards: props.playerMeleeLine, canBeSelected: props.playerLinesCanBeSelected ?? false },
+        { type: BATTLEFIELD_LINE.PLAYER_RANGED, style: styles.playerRangedLine, cards: props.playerRangedLine, canBeSelected: props.playerLinesCanBeSelected ?? false },
+        { type: BATTLEFIELD_LINE.PLAYER_SIEGE, style: styles.playerSiegeLine, cards: props.playerSiegeLine, canBeSelected: props.playerLinesCanBeSelected ?? false },
     ]
 
     const lines = linesConfig.map((line, i) => (
@@ -41,6 +42,7 @@ export function BattlefieldComponent(props: BattlefieldProps) {
             <BattlefieldLineComponent
                 cards={line.cards}
                 type={line.type}
+                canBeSelected={line.canBeSelected}
                 dark={i % 2 == 0}
                 onClick={() => !!props.onLineClick && props.onLineClick(line.type)}
             />

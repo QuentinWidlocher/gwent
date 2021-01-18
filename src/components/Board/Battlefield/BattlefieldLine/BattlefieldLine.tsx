@@ -7,6 +7,7 @@ export interface BattlefieldLineProps {
     cards: Card[],
     type: BATTLEFIELD_LINE,
     dark?: boolean,
+    canBeSelected?: boolean,
     onClick?: () => void
 }
 
@@ -16,6 +17,7 @@ export function BattlefieldLineComponent(props: BattlefieldLineProps) {
             className={`
                 ${styles.line}
                 ${props.dark ? styles.dark : ''}
+                ${props.canBeSelected ? styles.canBeSelected : ''}
             `}
             onClick={() => !!props.onClick && props.onClick()}
         >

@@ -5,15 +5,13 @@ import styles from "./PlayerHand.module.css"
 
 export interface PlayerHandProps {
     cards: Card[]
+    selectedCard: Card | null,
     onCardSelect?: (card: Card) => void
 }
 
 export function PlayerHandComponent(props: PlayerHandProps) {
 
-    const [selection, setSelection] = useState<number>(-1)
-
     function onCardSelect(index: number) {
-        setSelection(index)
         const selectedCard = props.cards[index] ?? null
         if (!!props.onCardSelect && !!selectedCard) {
             props.onCardSelect(selectedCard)
@@ -26,7 +24,7 @@ export function PlayerHandComponent(props: PlayerHandProps) {
                 <CardComponent
                     card={card}
                     canBeSelected={true}
-                    selected={selection == index}
+                    selected={props.cards.findIndex(card => card.title == props.selectedCard?.title) == index}
                     onClick={() => onCardSelect(index)}
                 />
             ))}

@@ -1,3 +1,4 @@
 .playerHand {
     composes: line from '../Battlefield/BattlefieldLine/BattlefieldLine.module.css';
+    min-height: 6rem;
 }

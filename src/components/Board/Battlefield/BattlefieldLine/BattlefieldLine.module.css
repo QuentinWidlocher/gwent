@@ -11,3 +11,7 @@
 .dark {
     background-color: #724923;
 }
+
+.canBeSelected:hover {
+    background-color: #b97739;
+}
