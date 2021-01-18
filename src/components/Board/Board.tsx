@@ -1,10 +1,11 @@
-import { remove } from "ramda"
+import { remove, sum } from "ramda"
 import React, { useState } from "react"
 import { Card } from "../../models/card"
-import { BATTLEFIELD_LINE, ENEMY_LINES, CARD_AUTHORIZED_LINES } from "../../models/constants"
+import { BATTLEFIELD_LINE, ENEMY_LINES, CARD_AUTHORIZED_LINES, PLAYER_LINES } from "../../models/constants"
 import { BattlefieldComponent } from "./Battlefield/Battlefield"
 import styles from "./Board.module.css"
 import { PlayerHandComponent } from "./PlayerHand/PlayerHand"
+import { ScoresComponent } from "./Scores/Scores"
 
 export interface BoardProps {
     cards: Card[]
@@ -36,7 +37,7 @@ export function BoardComponent(props: BoardProps) {
 
 
         // You can't play on a wrong line
-        if (!CARD_AUTHORIZED_LINES[selectedCard.type].includes(lineType)) {
+        if (!selectedCard.types.some(type => CARD_AUTHORIZED_LINES[type].includes(lineType))) {
             return
         }
 
@@ -51,9 +52,18 @@ export function BoardComponent(props: BoardProps) {
         setSelectedCard(null)
     }
 
+    function getTotalPoints(rowList: BATTLEFIELD_LINE[]) {
+        return sum(rowList.flatMap(line => rows[line].map(card => card.strength)))
+    }
+
     return (
         <div className={styles.board}>
-            <div className={styles.scores}></div>
+            <div className={styles.scores}>
+                <ScoresComponent
+                    enemyPoints={getTotalPoints(ENEMY_LINES)}
+                    playerPoints={getTotalPoints(PLAYER_LINES)}
+                />
+            </div>
             <div className={styles.battlefield}>
                 <BattlefieldComponent
                     enemySiegeLine={rows[BATTLEFIELD_LINE.ENEMY_SIEGE]}
@@ -66,7 +76,7 @@ export function BoardComponent(props: BoardProps) {
                     onLineClick={battlefieldLineSelect}
 
                     playerLinesCanBeSelected={!!selectedCard}
-                    selectableLines={selectedCard && CARD_AUTHORIZED_LINES[selectedCard.type]}
+                    selectableLines={selectedCard && selectedCard.types.flatMap(type => CARD_AUTHORIZED_LINES[type])}
                 />
             </div>
             <div className={styles.playerHand}>

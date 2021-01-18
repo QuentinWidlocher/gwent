@@ -15,11 +15,11 @@ export interface BattlefieldLineProps {
 export function BattlefieldLineComponent(props: BattlefieldLineProps) {
     return (
         <div
-            className={`
-                ${styles.line}
-                ${props.dark ? styles.dark : ''}
-                ${props.canBeSelected ? styles.canBeSelected : ''}
-            `}
+            className={[
+                (styles.line),
+                (props.dark ? styles.dark : ''),
+                (props.canBeSelected ? styles.canBeSelected : ''),
+            ].join(' ')}
             onClick={() => !!props.onClick && props.onClick()}
         >
             <span className={styles.strength}>{props.totalStrength}</span>

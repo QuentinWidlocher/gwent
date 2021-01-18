@@ -1,0 +1,17 @@
+.scores {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.tab {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.winning {
+    text-decoration: underline;
+}
