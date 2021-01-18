@@ -1,6 +1,6 @@
 import React from "react"
 import { Card, cardToComponent } from "../../../../models/card"
-import { BATTLEFIELD_LINE } from "../Battlefield"
+import { BATTLEFIELD_LINE } from "../../../../models/constants"
 import styles from "./BattlefieldLine.module.css"
 
 export interface BattlefieldLineProps {

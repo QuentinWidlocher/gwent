@@ -1,7 +1,8 @@
 import { remove } from "ramda"
 import React, { useState } from "react"
 import { Card } from "../../models/card"
-import { BattlefieldComponent, BATTLEFIELD_LINE } from "./Battlefield/Battlefield"
+import { BATTLEFIELD_LINE, ENEMY_LINES, CARD_AUTHORIZED_LINES } from "../../models/constants"
+import { BattlefieldComponent } from "./Battlefield/Battlefield"
 import styles from "./Board.module.css"
 import { PlayerHandComponent } from "./PlayerHand/PlayerHand"
 
@@ -23,11 +24,19 @@ export function BoardComponent(props: BoardProps) {
     const [playerHand, setPlayerHand] = useState<Card[]>(props.cards)
 
     function battlefieldLineSelect(lineType: BATTLEFIELD_LINE) {
-        if ([BATTLEFIELD_LINE.ENEMY_MELEE, BATTLEFIELD_LINE.ENEMY_RANGED, BATTLEFIELD_LINE.ENEMY_SIEGE].includes(lineType)) {
+        // You can't play if you haven't selected a card
+        if (!selectedCard) {
             return
         }
 
-        if (!selectedCard) {
+        // You can't play on the enemy side
+        if (ENEMY_LINES.includes(lineType)) {
+            return
+        }
+
+
+        // You can't play on a wrong line
+        if (!CARD_AUTHORIZED_LINES[selectedCard.type].includes(lineType)) {
             return
         }
 
@@ -57,6 +66,7 @@ export function BoardComponent(props: BoardProps) {
                     onLineClick={battlefieldLineSelect}
 
                     playerLinesCanBeSelected={!!selectedCard}
+                    selectableLines={selectedCard && CARD_AUTHORIZED_LINES[selectedCard.type]}
                 />
             </div>
             <div className={styles.playerHand}>
