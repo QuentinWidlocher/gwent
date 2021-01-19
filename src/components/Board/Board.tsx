@@ -8,7 +8,8 @@ import { PlayerHandComponent } from "./PlayerHand/PlayerHand"
 import { ScoresComponent } from "./Scores/Scores"
 
 export interface BoardProps {
-    cards: Card[]
+    playerDeck: Card[]
+    enemyDeck: Card[]
 }
 
 export function BoardComponent(props: BoardProps) {
@@ -22,7 +23,8 @@ export function BoardComponent(props: BoardProps) {
         [BATTLEFIELD_LINE.PLAYER_RANGED]: [],
         [BATTLEFIELD_LINE.PLAYER_SIEGE]: [],
     })
-    const [playerHand, setPlayerHand] = useState<Card[]>(props.cards)
+    const [playerHand, setPlayerHand] = useState<Card[]>(props.playerDeck.slice(0,10))
+    const [enemyHand, setEnemyHand] = useState<Card[]>(props.enemyDeck.slice(0, 10))
 
     function battlefieldLineSelect(lineType: BATTLEFIELD_LINE) {
         // You can't play if you haven't selected a card
