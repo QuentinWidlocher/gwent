@@ -12,7 +12,7 @@ export interface BoardProps {
     enemyDeck: Card[]
 }
 
-interface Round {
+export interface Round {
     playerPoints: number,
     enemyPoints: number
 }
@@ -32,7 +32,7 @@ export function BoardComponent(props: BoardProps) {
     const [selectedCard, setSelectedCard] = useState<Card | null>(null)
     const [rows, setRows] = useState(emptyRows)
 
-    const [playerHand, setPlayerHand] = useState<Card[]>(props.playerDeck.slice(0,10))
+    const [playerHand, setPlayerHand] = useState<Card[]>(props.playerDeck.slice(0, 10))
     const [enemyHand, setEnemyHand] = useState<Card[]>(props.enemyDeck.slice(0, 10))
 
     const [playerTurn, setPlayerTurn] = useState<boolean>(Math.random() >= 0.5)
@@ -42,7 +42,7 @@ export function BoardComponent(props: BoardProps) {
 
     const [rounds, setRounds] = useState<Round[]>([])
 
-    useEffect(function enemyTurn(){
+    useEffect(function enemyTurn() {
         if (!playerTurn && enemyHand.length > 0) {
             let enemySelectedCard = enemyHand[Math.floor(Math.random() * enemyHand.length)]
             let availableLines = enemySelectedCard.types.flatMap(type => CARD_AUTHORIZED_LINES[type].filter(line => ENEMY_LINES.includes(line)))
@@ -58,18 +58,24 @@ export function BoardComponent(props: BoardProps) {
     }, [Object.values(rows)])
 
     useEffect(function onRoundChange() {
-        if (rounds.length >= 2) {
-            let playerTotalPoints = sum(rounds.map(round => round.playerPoints))
-            let enemyTotalPoints = sum(rounds.map(round => round.enemyPoints))
-            let playerWon = playerTotalPoints > enemyTotalPoints
-            alert(`${playerWon ? 'You' : 'Your opponent'} win${playerWon ? '' : 's'} !`)
+
+        let enemyVictories = rounds.filter(({ enemyPoints, playerPoints }) => enemyPoints > playerPoints).length
+        let playerVictories = rounds.filter(({ enemyPoints, playerPoints }) => enemyPoints < playerPoints).length
+
+        if (rounds.length >= 3 || enemyVictories >= 2 || playerVictories >= 2) {
+            console.log(rounds)
+            if (enemyVictories == playerVictories) {
+                alert('Draw !')
+            } else {
+                let playerWon = playerVictories > enemyVictories
+                alert(`${playerWon ? 'You' : 'Your opponent'} win${playerWon ? '' : 's'} !`)
+            }
         }
     }, [rounds])
 
     function playCard(card: Card, line: BATTLEFIELD_LINE, hand: Card[], setHand: (cards: Card[]) => void) {
         let mutatedRow = rows
         mutatedRow[line].push(card)
-        console.log('bah oe')
         setRows(mutatedRow)
 
         let mutatedHand = [...hand]
@@ -96,7 +102,7 @@ export function BoardComponent(props: BoardProps) {
         playCard(selectedCard, lineType, playerHand, setPlayerHand)
 
         setSelectedCard(null)
-        
+
         setTimeout(() => setPlayerTurn(false), enemyFakeThinkingTime)
     }
 
@@ -105,7 +111,7 @@ export function BoardComponent(props: BoardProps) {
     }
 
     function endRound() {
-        if (rounds.length >= 2) {
+        if (rounds.length >= 3) {
             return
         }
 
@@ -119,6 +125,7 @@ export function BoardComponent(props: BoardProps) {
                 <ScoresComponent
                     enemyPoints={enemyPoints}
                     playerPoints={playerPoints}
+                    rounds={rounds}
                 />
             </div>
             <div className={styles.battlefield}>
