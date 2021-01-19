@@ -1,6 +1,6 @@
 .card {
-    --card-width: 4rem;
-    --card-height: 5rem;
+    --card-width: 4.5rem;
+    --card-height: 6rem;
     --selection-color: lightblue;
 }
 
@@ -41,10 +41,12 @@
 
 .title {
     font-size: smaller;
+    text-align: center;
     margin: 0;
 }
 
 .type {
     font-size: x-small;
+    font-style: italic;
     margin: 0;
 }

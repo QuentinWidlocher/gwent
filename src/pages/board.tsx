@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
 import { BoardComponent } from '../components/Board/Board'
-import { Card } from '../models/card'
-import { CARD_LIST, CARD_TYPE, DECKS, DECK_TYPE } from '../models/cardlist'
-
+import { DECKS, DECK_TYPE } from '../models/cardlist'
 interface BoardPageProps {
 
 }

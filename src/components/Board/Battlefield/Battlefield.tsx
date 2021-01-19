@@ -35,7 +35,7 @@ export function BattlefieldComponent(props: BattlefieldProps) {
     }
 
     const lines = linesConfig.map((line, i) => (
-        <div className={line.style}>
+        <div className={line.style} key={`battlefield_line_${i}`}>
             <BattlefieldLineComponent
                 cards={line.cards}
                 type={line.type}

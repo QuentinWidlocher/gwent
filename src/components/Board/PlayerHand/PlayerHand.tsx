@@ -7,6 +7,7 @@ export interface PlayerHandProps {
     cards: Card[]
     selectedCard: Card | null,
     onCardSelect?: (card: Card) => void
+    canSelectCards?: boolean
 }
 
 export function PlayerHandComponent(props: PlayerHandProps) {
@@ -23,9 +24,10 @@ export function PlayerHandComponent(props: PlayerHandProps) {
             {props.cards.map((card, index) => (
                 <CardComponent
                     card={card}
-                    canBeSelected={true}
+                    canBeSelected={props.canSelectCards}
                     selected={props.cards.findIndex(card => card.title == props.selectedCard?.title) == index}
                     onClick={() => onCardSelect(index)}
+                    key={`player_hand_card_${index}_${card.title}`}
                 />
             ))}
         </div>

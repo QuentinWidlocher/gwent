@@ -1,5 +1,5 @@
 import { remove, sum } from "ramda"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Card } from "../../models/card"
 import { BATTLEFIELD_LINE, ENEMY_LINES, CARD_AUTHORIZED_LINES, PLAYER_LINES } from "../../models/constants"
 import { BattlefieldComponent } from "./Battlefield/Battlefield"
@@ -14,6 +14,8 @@ export interface BoardProps {
 
 export function BoardComponent(props: BoardProps) {
 
+    const enemyFakeThinkingTime = 500
+
     const [selectedCard, setSelectedCard] = useState<Card | null>(null)
     const [rows, setRows] = useState<Record<BATTLEFIELD_LINE, Card[]>>({
         [BATTLEFIELD_LINE.ENEMY_SIEGE]: [],
@@ -23,8 +25,31 @@ export function BoardComponent(props: BoardProps) {
         [BATTLEFIELD_LINE.PLAYER_RANGED]: [],
         [BATTLEFIELD_LINE.PLAYER_SIEGE]: [],
     })
+
     const [playerHand, setPlayerHand] = useState<Card[]>(props.playerDeck.slice(0,10))
     const [enemyHand, setEnemyHand] = useState<Card[]>(props.enemyDeck.slice(0, 10))
+
+    const [playerTurn, setPlayerTurn] = useState<boolean>(Math.random() >= 0.5)
+
+    useEffect(function enemyTurn(){
+        if (!playerTurn && enemyHand.length > 0) {
+            let enemySelectedCard = enemyHand[Math.floor(Math.random() * enemyHand.length)]
+            let availableLines = enemySelectedCard.types.flatMap(type => CARD_AUTHORIZED_LINES[type].filter(line => ENEMY_LINES.includes(line)))
+            let enemySelectedLine = availableLines[Math.floor(Math.random() * availableLines.length)]
+            playCard(enemySelectedCard, enemySelectedLine, enemyHand, setEnemyHand)
+            setPlayerTurn(true)
+        }
+    }, [playerTurn])
+
+    function playCard(card: Card, line: BATTLEFIELD_LINE, hand: Card[], setHand: (cards: Card[]) => void) {
+        let mutatedRow = rows
+        mutatedRow[line].push(card)
+        setRows(mutatedRow)
+
+        let mutatedHand = [...hand]
+        mutatedHand.splice(hand.findIndex(c => c.title == card.title), 1)
+        setHand(mutatedHand)
+    }
 
     function battlefieldLineSelect(lineType: BATTLEFIELD_LINE) {
         // You can't play if you haven't selected a card
@@ -43,15 +68,11 @@ export function BoardComponent(props: BoardProps) {
             return
         }
 
-        const mutatedRow = rows
-        mutatedRow[lineType].push(selectedCard)
-        setRows(rows)
-
-        const mutatedPlayerHand = playerHand
-        mutatedPlayerHand.splice(playerHand.findIndex(c => c.title == selectedCard.title), 1)
-        setPlayerHand(mutatedPlayerHand)
+        playCard(selectedCard, lineType, playerHand, setPlayerHand)
 
         setSelectedCard(null)
+        
+        setTimeout(() => setPlayerTurn(false), enemyFakeThinkingTime)
     }
 
     function getTotalPoints(rowList: BATTLEFIELD_LINE[]) {
@@ -86,6 +107,7 @@ export function BoardComponent(props: BoardProps) {
                     cards={playerHand}
                     selectedCard={selectedCard}
                     onCardSelect={setSelectedCard}
+                    canSelectCards={playerTurn}
                 />
             </div>
             <div className={styles.decks}></div>

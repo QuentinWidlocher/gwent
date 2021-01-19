@@ -9,5 +9,5 @@ export interface Card {
 }
 
 export function cardToComponent(card: Card) {
-    return (<CardComponent card={card} />)
+    return (<CardComponent card={card} key={`card_${card.title}`} />)
 }
