@@ -5,13 +5,17 @@ interface BoardPageProps {
 
 }
 
+function mixDeckWithNeutral(type: DECK_TYPE) {
+    return [...DECKS[DECK_TYPE.NEUTRAL], ...DECKS[type]]
+}
+
 export function BoardPage(props: BoardPageProps = {}) {
 
-    const [playerDeck] = useState(shuffled(DECKS[DECK_TYPE.NORTHERN_REALMS]))
-    const [enemyDeck] = useState(shuffled(DECKS[DECK_TYPE.NORTHERN_REALMS]))
+    const [playerDeck] = useState(shuffled(mixDeckWithNeutral(DECK_TYPE.NORTHERN_REALMS)))
+    const [enemyDeck] = useState(shuffled(mixDeckWithNeutral(DECK_TYPE.NORTHERN_REALMS)))
 
     function shuffled<T>(array: T[]): T[] {
-        let shuffledArray = [... array]
+        let shuffledArray = [...array]
         for (let i = shuffledArray.length - 1; i > 0; i--) {
             let j = Math.floor(Math.random() * (i + 1));
             [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]]

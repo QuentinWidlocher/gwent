@@ -14,9 +14,11 @@ export enum CARD_TYPE {
     RANGED,
     SIEGE,
     HERO,
+    EFFECT,
+    MODIFIER,
 }
 
-export const CARD_LIST: (Card & {occurence: number})[] = [
+export const CARD_LIST: (Card & { occurence: number })[] = [
     {
         deckType: DECK_TYPE.NORTHERN_REALMS,
         title: 'Philippa Eilhart',
@@ -58,7 +60,7 @@ export const CARD_LIST: (Card & {occurence: number})[] = [
         title: 'Redanian Foot Soldier',
         strength: 1,
         types: [CARD_TYPE.MELEE],
-        occurence: 1,
+        occurence: 2,
     },
     {
         deckType: DECK_TYPE.NORTHERN_REALMS,
@@ -74,7 +76,7 @@ export const CARD_LIST: (Card & {occurence: number})[] = [
         strength: 1,
         types: [CARD_TYPE.SIEGE],
         //morale boost
-        occurence: 1,
+        occurence: 3,
     },
     {
         deckType: DECK_TYPE.NORTHERN_REALMS,
@@ -184,7 +186,7 @@ export const CARD_LIST: (Card & {occurence: number})[] = [
         title: 'Trebuchet',
         strength: 6,
         types: [CARD_TYPE.SIEGE],
-        occurence: 1,
+        occurence: 2,
     },
     {
         deckType: DECK_TYPE.NORTHERN_REALMS,
@@ -201,12 +203,129 @@ export const CARD_LIST: (Card & {occurence: number})[] = [
         //tight bond
         occurence: 2,
     },
+    {
+        deckType: DECK_TYPE.NEUTRAL,
+        title: 'Geralt of Rivia',
+        strength: 15,
+        types: [CARD_TYPE.HERO, CARD_TYPE.MELEE],
+        occurence: 1,
+    },
+    {
+        deckType: DECK_TYPE.NEUTRAL,
+        title: 'Cirilla Fiona Elen Riannon',
+        strength: 15,
+        types: [CARD_TYPE.HERO, CARD_TYPE.MELEE],
+        occurence: 1,
+    },
+    {
+        deckType: DECK_TYPE.NEUTRAL,
+        title: 'Yennefer of Vengerberg',
+        strength: 7,
+        types: [CARD_TYPE.HERO, CARD_TYPE.RANGED],
+        //medic
+        occurence: 1,
+    },
+    {
+        deckType: DECK_TYPE.NEUTRAL,
+        title: 'Triss Merigold',
+        strength: 7,
+        types: [CARD_TYPE.HERO, CARD_TYPE.MELEE],
+        occurence: 1,
+    },
+    {
+        deckType: DECK_TYPE.NEUTRAL,
+        title: 'Avallac’h',
+        strength: 7,
+        types: [CARD_TYPE.HERO, CARD_TYPE.MELEE],
+        //spy
+        occurence: 1,
+    },
+    {
+        deckType: DECK_TYPE.NEUTRAL,
+        title: 'Dandelion',
+        strength: 2,
+        types: [CARD_TYPE.MELEE],
+        //boost morale
+        occurence: 1,
+    },
+    {
+        deckType: DECK_TYPE.NEUTRAL,
+        title: 'Zoltan Chivay',
+        strength: 5,
+        types: [CARD_TYPE.MELEE],
+        occurence: 1,
+    },
+    {
+        deckType: DECK_TYPE.NEUTRAL,
+        title: 'Emiel Regis Rohellec Terzieff',
+        strength: 5,
+        types: [CARD_TYPE.MELEE],
+        occurence: 1,
+    },
+    {
+        deckType: DECK_TYPE.NEUTRAL,
+        title: 'Vesemir',
+        strength: 6,
+        types: [CARD_TYPE.MELEE],
+        occurence: 1,
+    },
+    {
+        deckType: DECK_TYPE.NEUTRAL,
+        title: 'Villentretenmerth',
+        strength: 7,
+        types: [CARD_TYPE.MELEE],
+        //scorch
+        occurence: 1,
+    },
+    {
+        deckType: DECK_TYPE.NEUTRAL,
+        title: 'Biting Frost',
+        types: [CARD_TYPE.EFFECT],
+        occurence: 3,
+    },
+    {
+        deckType: DECK_TYPE.NEUTRAL,
+        title: 'Impenetrable Fog',
+        types: [CARD_TYPE.EFFECT],
+        occurence: 3,
+    },
+    {
+        deckType: DECK_TYPE.NEUTRAL,
+        title: 'Torrential Rain',
+        types: [CARD_TYPE.EFFECT],
+        occurence: 2,
+    },
+    {
+        deckType: DECK_TYPE.NEUTRAL,
+        title: 'Clear Weather',
+        types: [CARD_TYPE.EFFECT],
+        occurence: 2,
+    },
+    {
+        deckType: DECK_TYPE.NEUTRAL,
+        title: 'Decoy',
+        strength: 0,
+        types: [CARD_TYPE.MELEE, CARD_TYPE.RANGED, CARD_TYPE.SIEGE],
+        occurence: 3,
+    },
+    {
+        deckType: DECK_TYPE.NEUTRAL,
+        title: 'Scorch',
+        types: [CARD_TYPE.EFFECT],
+        occurence: 3,
+    },
+    {
+        deckType: DECK_TYPE.NEUTRAL,
+        title: 'Commander’s Horn',
+        types: [CARD_TYPE.MODIFIER],
+        occurence: 3,
+    },
 ];
 
 function getActualDeck(deckType: DECK_TYPE): Card[] {
-    return CARD_LIST
-        .filter(card => card.deckType == deckType)
-        .flatMap(card => Array(card.occurence).fill(card))
+    return CARD_LIST.filter((card) => card.deckType == deckType).flatMap((card) =>
+        Array(card.occurence).fill(card)
+    );
 }
 
 export const DECKS: Record<DECK_TYPE, Card[]> = {
@@ -215,4 +334,4 @@ export const DECKS: Record<DECK_TYPE, Card[]> = {
     [DECK_TYPE.SCOIATAEL]: getActualDeck(DECK_TYPE.SCOIATAEL),
     [DECK_TYPE.MONSTER]: getActualDeck(DECK_TYPE.MONSTER),
     [DECK_TYPE.NEUTRAL]: getActualDeck(DECK_TYPE.NEUTRAL),
-}
+};

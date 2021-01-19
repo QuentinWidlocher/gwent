@@ -107,7 +107,7 @@ export function BoardComponent(props: BoardProps) {
     }
 
     function getTotalPoints(rowList: BATTLEFIELD_LINE[]) {
-        return sum(rowList.flatMap(line => rows[line].map(card => card.strength)))
+        return sum(rowList.flatMap(line => rows[line].map(card => card.strength ?? 0)))
     }
 
     function endRound() {
