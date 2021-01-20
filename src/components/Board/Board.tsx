@@ -1,6 +1,6 @@
 import { remove, sum } from "ramda"
 import React, { useEffect, useState } from "react"
-import { Card, isPlacedCard, PlacedCard } from "../../models/card"
+import { Card, isPlacedCard, Modifier, PlacedCard } from "../../models/card"
 import { BATTLEFIELD_LINE, ENEMY_LINES, CARD_AUTHORIZED_LINES, PLAYER_LINES } from "../../models/constants"
 import { BattlefieldComponent } from "./Battlefield/Battlefield"
 import styles from "./Board.module.css"
@@ -35,7 +35,7 @@ export function BoardComponent(props: BoardProps) {
     const [playerHand, setPlayerHand] = useState<Card[]>(props.playerDeck.slice(0, 10))
     const [enemyHand, setEnemyHand] = useState<Card[]>(props.enemyDeck.slice(0, 10))
 
-    const [playerTurn, setPlayerTurn] = useState<boolean>(Math.random() >= 0.5)
+    const [playerTurn, setPlayerTurn] = useState<boolean>(true)//Math.random() >= 0.5)
 
     const [playerPoints, setPlayerPoints] = useState(0)
     const [enemyPoints, setEnemyPoints] = useState(0)
@@ -78,7 +78,40 @@ export function BoardComponent(props: BoardProps) {
         }
     }, [rounds])
 
+    function computeBattlefieldPoints() {
+        let newBattlefield = emptyRows
+
+        for (let lineType in BATTLEFIELD_LINE) {
+            let line = rows[(Number(lineType)) as BATTLEFIELD_LINE]
+            console.debug('lineType', lineType)
+            console.debug('line', line);
+            if (!line) continue
+
+            line = line.map(card => ({ ...card, apparentStrength: card.strength }))
+
+            let lineModifiers: [Modifier, PlacedCard][] = []
+
+            for (let card of line) {
+                if (!!card.modifyPoints) {
+                    lineModifiers.push([card.modifyPoints, card])
+                }
+            }
+
+            let modifiers = lineModifiers.sort(([m]) => m.priority).reverse()
+            let newLine = modifiers.reduce((curLine, [m, c]) => m.effect(c, curLine), line)
+            console.debug('newLine', newLine);
+
+            newBattlefield[(Number(lineType)) as BATTLEFIELD_LINE] = newLine
+        }
+
+        console.debug('rows', rows);
+        console.debug('newBattlefield', newBattlefield);
+        setRows(newBattlefield)
+    }
+
     function playCard(card: PlacedCard, line: BATTLEFIELD_LINE, hand: Card[], setHand: (cards: Card[]) => void) {
+        card.apparentStrength = card.strength
+
         let mutatedRow = rows
         mutatedRow[line].push(card)
         setRows(mutatedRow)
@@ -87,9 +120,11 @@ export function BoardComponent(props: BoardProps) {
         mutatedHand.splice(hand.findIndex(c => c.title == card.title), 1)
         setHand(mutatedHand)
 
-        if (!!card.onCardPlayed){
+        if (!!card.onCardPlayed) {
             card.onCardPlayed()
         }
+
+        computeBattlefieldPoints()
     }
 
     function battlefieldLineSelect(lineType: BATTLEFIELD_LINE) {
@@ -120,7 +155,7 @@ export function BoardComponent(props: BoardProps) {
     }
 
     function getTotalPoints(rowList: BATTLEFIELD_LINE[]) {
-        return sum(rowList.flatMap(line => rows[line].filter(isPlacedCard).map(card => card.strength ?? 0)))
+        return sum(rowList.flatMap(line => rows[line].filter(isPlacedCard).map(card => card.apparentStrength ?? card.strength)))
     }
 
     function endRound() {
@@ -153,10 +188,10 @@ export function BoardComponent(props: BoardProps) {
                     onLineClick={battlefieldLineSelect}
 
                     playerLinesCanBeSelected={!!selectedCard}
-                    selectableLines={(selectedCard && isPlacedCard(selectedCard)) ? 
-                                        selectedCard.unitTypes.flatMap(type => CARD_AUTHORIZED_LINES[type]) 
-                                        : null
-                                    }
+                    selectableLines={(selectedCard && isPlacedCard(selectedCard)) ?
+                        selectedCard.unitTypes.flatMap(type => CARD_AUTHORIZED_LINES[type])
+                        : null
+                    }
                 />
             </div>
             <div className={styles.playerHand}>

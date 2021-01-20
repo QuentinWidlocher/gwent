@@ -4,7 +4,7 @@ import { BATTLEFIELD_LINE } from "../../../../models/constants"
 import styles from "./BattlefieldLine.module.css"
 
 export interface BattlefieldLineProps {
-    cards: PlacedCard[],
+    cards: (PlacedCard)[],
     type: BATTLEFIELD_LINE,
     totalStrength: number
     dark?: boolean,

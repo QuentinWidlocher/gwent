@@ -27,13 +27,20 @@ export function CardComponent(props: CardProps) {
             ].join(' ')}
             onClick={onClick}
         >
-            <h1 className={styles.strength}>{isPlacedCard(props.card) ? props.card.strength : null}</h1>
+            <h1 className={styles.strength}>{
+                isPlacedCard(props.card) ?
+                    (!!props.card.apparentStrength ?
+                        props.card.apparentStrength
+                        : props.card.strength
+                    )
+                    : null
+            }</h1>
             <h1 className={styles.title}>{props.card.title}</h1>
             <h2 className={styles.type}>{
-                isPlacedCard(props.card) ? 
+                isPlacedCard(props.card) ?
                     props.card.unitTypes.map(type => PLACED_CARD_TYPE_NAMES[type]).join('/')
                     : null
-                }</h2>
+            }</h2>
         </div>
     )
 }

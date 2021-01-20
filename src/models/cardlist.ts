@@ -1,4 +1,4 @@
-import { Card } from "./card"
+import { Card, PlacedCard } from './card';
 
 export enum DECK_TYPE {
     NORTHERN_REALMS,
@@ -11,7 +11,7 @@ export enum DECK_TYPE {
 export enum CARD_TYPE {
     PLACED,
     EFFECT,
-    MODIFIER
+    MODIFIER,
 }
 
 export enum PLACED_CARD_TYPE {
@@ -21,15 +21,58 @@ export enum PLACED_CARD_TYPE {
     HERO,
 }
 
-function medicEffect() {console.log('medic effect')}
-function moraleBoostEffect() {console.log('morale boost effect')}
-function musterEffect() {console.log('muster effect')}
-function spyEffect() { console.log('spy effect')}
-function tightBondEffect() { console.log('tight bond effect')}
-function weatherEffect() { console.log('weather effect')}
-function commandersHornEffect() { console.log('horn effect')}
-function decoyEffect() { console.log('decoy effect')}
-function scorchEffect() { console.log('scorch effect')}
+function medicEffect() {
+    console.log('medic effect');
+}
+function moraleBoostEffect(self: PlacedCard, line: PlacedCard[]): PlacedCard[] {
+    console.log('morale boost effect');
+    return line.map((card) => {
+        if (card != self) {
+            return {
+                ...card,
+                apparentStrength: !!card.apparentStrength ? card.apparentStrength + 1 : card.strength + 1,
+            };
+        } else {
+            return card;
+        }
+    });
+}
+function musterEffect() {
+    console.log('muster effect');
+}
+function spyEffect() {
+    console.log('spy effect');
+}
+function tightBondEffect(self: PlacedCard, line: PlacedCard[]): PlacedCard[] {
+    console.log('tight bond effect');
+    return line.map((card) => {
+        if (card == self) {
+            let howManyIdenticalCards = line.filter((c) => c.title == self.title).length;
+            return {
+                ...card,
+                apparentStrength: !!card.apparentStrength
+                    ? card.apparentStrength * howManyIdenticalCards
+                    : card.strength * howManyIdenticalCards,
+            };
+        } else {
+            return card;
+        }
+    });
+}
+function weatherEffect(self: PlacedCard, line: PlacedCard[]): PlacedCard[] {
+    console.log('weather effect');
+    return line;
+}
+function commandersHornEffect(self: PlacedCard, line: PlacedCard[]): PlacedCard[] {
+    console.log('horn effect');
+    return line;
+}
+function decoyEffect() {
+    console.log('decoy effect');
+}
+function scorchEffect() {
+    console.log('scorch effect');
+}
 
 export const CARD_LIST: (Card & { occurence: number })[] = [
     {
@@ -84,7 +127,10 @@ export const CARD_LIST: (Card & { occurence: number })[] = [
     {
         deckType: DECK_TYPE.NORTHERN_REALMS,
         title: 'Poor Fucking Infantry',
-        onCardPlayed: tightBondEffect,
+        modifyPoints: {
+            priority: 1,
+            effect: tightBondEffect,
+        },
         type: CARD_TYPE.PLACED,
         strength: 1,
         unitTypes: [PLACED_CARD_TYPE.MELEE],
@@ -93,7 +139,10 @@ export const CARD_LIST: (Card & { occurence: number })[] = [
     {
         deckType: DECK_TYPE.NORTHERN_REALMS,
         title: 'Kaedweni Siege Expert',
-        onCardPlayed: moraleBoostEffect,
+        modifyPoints: {
+            priority: 2,
+            effect: moraleBoostEffect,
+        },
         type: CARD_TYPE.PLACED,
         strength: 1,
         unitTypes: [PLACED_CARD_TYPE.SIEGE],
@@ -127,7 +176,10 @@ export const CARD_LIST: (Card & { occurence: number })[] = [
     {
         deckType: DECK_TYPE.NORTHERN_REALMS,
         title: 'Blue Stripes Commando',
-        onCardPlayed: tightBondEffect,
+        modifyPoints: {
+            priority: 1,
+            effect: tightBondEffect,
+        },
         type: CARD_TYPE.PLACED,
         strength: 4,
         unitTypes: [PLACED_CARD_TYPE.MELEE],
@@ -169,7 +221,10 @@ export const CARD_LIST: (Card & { occurence: number })[] = [
     {
         deckType: DECK_TYPE.NORTHERN_REALMS,
         title: 'Crinfrid Reavers Dragon Hunter',
-        onCardPlayed: tightBondEffect,
+        modifyPoints: {
+            priority: 1,
+            effect: tightBondEffect,
+        },
         type: CARD_TYPE.PLACED,
         strength: 5,
         unitTypes: [PLACED_CARD_TYPE.RANGED],
@@ -235,7 +290,10 @@ export const CARD_LIST: (Card & { occurence: number })[] = [
     {
         deckType: DECK_TYPE.NORTHERN_REALMS,
         title: 'Catapult',
-        onCardPlayed: tightBondEffect,
+        modifyPoints: {
+            priority: 1,
+            effect: tightBondEffect,
+        },
         type: CARD_TYPE.PLACED,
         strength: 8,
         unitTypes: [PLACED_CARD_TYPE.SIEGE],
@@ -286,7 +344,10 @@ export const CARD_LIST: (Card & { occurence: number })[] = [
     {
         deckType: DECK_TYPE.NEUTRAL,
         title: 'Dandelion',
-        onCardPlayed: moraleBoostEffect,
+        modifyPoints: {
+            priority: 2,
+            effect: moraleBoostEffect,
+        },
         type: CARD_TYPE.PLACED,
         strength: 2,
         unitTypes: [PLACED_CARD_TYPE.MELEE],
@@ -328,28 +389,37 @@ export const CARD_LIST: (Card & { occurence: number })[] = [
     {
         deckType: DECK_TYPE.NEUTRAL,
         title: 'Biting Frost',
-        onCardPlayed: weatherEffect,
-        type: CARD_TYPE.EFFECT,
+        modifyPoints: {
+            priority: 3,
+            effect: weatherEffect,
+        },
+        type: CARD_TYPE.MODIFIER,
         occurence: 3,
     },
     {
         deckType: DECK_TYPE.NEUTRAL,
         title: 'Impenetrable Fog',
-        onCardPlayed: weatherEffect,
-        type: CARD_TYPE.EFFECT,
+        modifyPoints: {
+            priority: 3,
+            effect: weatherEffect,
+        },
+        type: CARD_TYPE.MODIFIER,
         occurence: 3,
     },
     {
         deckType: DECK_TYPE.NEUTRAL,
         title: 'Torrential Rain',
-        onCardPlayed: weatherEffect,
-        type: CARD_TYPE.EFFECT,
-        occurence: 2,
+        modifyPoints: {
+            priority: 3,
+            effect: weatherEffect,
+        },
+        type: CARD_TYPE.MODIFIER,
+        occurence: 3,
     },
     {
         deckType: DECK_TYPE.NEUTRAL,
         title: 'Clear Weather',
-        onCardPlayed: weatherEffect,
+        onCardPlayed: () => {},
         type: CARD_TYPE.EFFECT,
         occurence: 2,
     },
@@ -373,16 +443,18 @@ export const CARD_LIST: (Card & { occurence: number })[] = [
     {
         deckType: DECK_TYPE.NEUTRAL,
         title: 'Commander’s Horn',
-        onCardPlayed: commandersHornEffect,
+        modifyPoints: {
+            priority: 3,
+            effect: commandersHornEffect,
+        },
         type: CARD_TYPE.MODIFIER,
         occurence: 3,
     },
 ];
 
 function getActualDeck(deckType: DECK_TYPE): Card[] {
-    return CARD_LIST.filter((card) => card.deckType == deckType).flatMap((card) =>
-        Array(card.occurence).fill(card)
-    );
+    return CARD_LIST.filter((card) => card.deckType == deckType) // Only the card from the deck
+        .flatMap((card) => Array(card.occurence).fill(card)); // One for each occurence
 }
 
 export const DECKS: Record<DECK_TYPE, Card[]> = {

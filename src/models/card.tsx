@@ -3,17 +3,24 @@ import { CardComponent } from "../components/Board/Card/Card"
 import { CARD_TYPE, DECK_TYPE, PLACED_CARD_TYPE } from "./cardlist"
 import { BATTLEFIELD_LINE } from "./constants"
 export interface BaseCard {
-    type: CARD_TYPE,
-    title: string,
-    deckType: DECK_TYPE,
+    type: CARD_TYPE
+    title: string
+    deckType: DECK_TYPE
     onCardPlayed?: () => void
+    modifyPoints?: Modifier
+}
+
+export interface Modifier {
+    priority: number
+    effect: (self: PlacedCard, line: PlacedCard[]) => PlacedCard[]
 }
 
 export interface PlacedCard extends BaseCard {
-    unitTypes: PLACED_CARD_TYPE[],
-    strength: number,
-    canBePlacedOverACard?: boolean,
-    authorizedLines?: BATTLEFIELD_LINE[],
+    unitTypes: PLACED_CARD_TYPE[]
+    strength: number
+    apparentStrength?: number
+    canBePlacedOverACard?: boolean
+    authorizedLines?: BATTLEFIELD_LINE[]
 }
 
 export type Card = BaseCard | PlacedCard
