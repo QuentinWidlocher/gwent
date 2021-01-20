@@ -1,5 +1,6 @@
-import { Card } from "../../../models/card"
-import { CARD_TYPE_NAMES } from "../../../models/constants"
+import { Card, isPlacedCard, PlacedCard } from "../../../models/card"
+import { CARD_TYPE } from "../../../models/cardlist"
+import { CARD_TYPE_NAMES, PLACED_CARD_TYPE_NAMES } from "../../../models/constants"
 import styles from "./Card.module.css"
 
 export interface CardProps {
@@ -26,9 +27,13 @@ export function CardComponent(props: CardProps) {
             ].join(' ')}
             onClick={onClick}
         >
-            <h1 className={styles.strength}>{props.card.strength}</h1>
+            <h1 className={styles.strength}>{isPlacedCard(props.card) ? props.card.strength : null}</h1>
             <h1 className={styles.title}>{props.card.title}</h1>
-            <h2 className={styles.type}>{props.card.types.map(type => CARD_TYPE_NAMES[type]).join('/')}</h2>
+            <h2 className={styles.type}>{
+                isPlacedCard(props.card) ? 
+                    props.card.unitTypes.map(type => PLACED_CARD_TYPE_NAMES[type]).join('/')
+                    : null
+                }</h2>
         </div>
     )
 }

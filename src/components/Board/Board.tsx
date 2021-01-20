@@ -1,6 +1,6 @@
 import { remove, sum } from "ramda"
 import React, { useEffect, useState } from "react"
-import { Card } from "../../models/card"
+import { Card, isPlacedCard, PlacedCard } from "../../models/card"
 import { BATTLEFIELD_LINE, ENEMY_LINES, CARD_AUTHORIZED_LINES, PLAYER_LINES } from "../../models/constants"
 import { BattlefieldComponent } from "./Battlefield/Battlefield"
 import styles from "./Board.module.css"
@@ -20,7 +20,7 @@ export interface Round {
 export function BoardComponent(props: BoardProps) {
 
     const enemyFakeThinkingTime = 500
-    const emptyRows: Record<BATTLEFIELD_LINE, Card[]> = {
+    const emptyRows: Record<BATTLEFIELD_LINE, PlacedCard[]> = {
         [BATTLEFIELD_LINE.ENEMY_SIEGE]: [],
         [BATTLEFIELD_LINE.ENEMY_RANGED]: [],
         [BATTLEFIELD_LINE.ENEMY_MELEE]: [],
@@ -45,9 +45,14 @@ export function BoardComponent(props: BoardProps) {
     useEffect(function enemyTurn() {
         if (!playerTurn && enemyHand.length > 0) {
             let enemySelectedCard = enemyHand[Math.floor(Math.random() * enemyHand.length)]
-            let availableLines = enemySelectedCard.types.flatMap(type => CARD_AUTHORIZED_LINES[type].filter(line => ENEMY_LINES.includes(line)))
-            let enemySelectedLine = availableLines[Math.floor(Math.random() * availableLines.length)]
-            playCard(enemySelectedCard, enemySelectedLine, enemyHand, setEnemyHand)
+
+            if (isPlacedCard(enemySelectedCard)) {
+                let availableLines = enemySelectedCard.unitTypes.flatMap(type => CARD_AUTHORIZED_LINES[type].filter(line => ENEMY_LINES.includes(line)))
+                let enemySelectedLine = availableLines[Math.floor(Math.random() * availableLines.length)]
+                playCard(enemySelectedCard, enemySelectedLine, enemyHand, setEnemyHand)
+            } else {
+
+            }
             setPlayerTurn(true)
         }
     }, [playerTurn])
@@ -73,7 +78,7 @@ export function BoardComponent(props: BoardProps) {
         }
     }, [rounds])
 
-    function playCard(card: Card, line: BATTLEFIELD_LINE, hand: Card[], setHand: (cards: Card[]) => void) {
+    function playCard(card: PlacedCard, line: BATTLEFIELD_LINE, hand: Card[], setHand: (cards: Card[]) => void) {
         let mutatedRow = rows
         mutatedRow[line].push(card)
         setRows(mutatedRow)
@@ -81,6 +86,10 @@ export function BoardComponent(props: BoardProps) {
         let mutatedHand = [...hand]
         mutatedHand.splice(hand.findIndex(c => c.title == card.title), 1)
         setHand(mutatedHand)
+
+        if (!!card.onCardPlayed){
+            card.onCardPlayed()
+        }
     }
 
     function battlefieldLineSelect(lineType: BATTLEFIELD_LINE) {
@@ -94,12 +103,16 @@ export function BoardComponent(props: BoardProps) {
             return
         }
 
-        // You can't play on a wrong line
-        if (!selectedCard.types.some(type => CARD_AUTHORIZED_LINES[type].includes(lineType))) {
-            return
-        }
+        if (isPlacedCard(selectedCard)) {
+            // You can't play on a wrong line
+            if (!selectedCard.unitTypes.some(type => CARD_AUTHORIZED_LINES[type].includes(lineType))) {
+                return
+            }
 
-        playCard(selectedCard, lineType, playerHand, setPlayerHand)
+            playCard(selectedCard, lineType, playerHand, setPlayerHand)
+        } else {
+
+        }
 
         setSelectedCard(null)
 
@@ -107,7 +120,7 @@ export function BoardComponent(props: BoardProps) {
     }
 
     function getTotalPoints(rowList: BATTLEFIELD_LINE[]) {
-        return sum(rowList.flatMap(line => rows[line].map(card => card.strength ?? 0)))
+        return sum(rowList.flatMap(line => rows[line].filter(isPlacedCard).map(card => card.strength ?? 0)))
     }
 
     function endRound() {
@@ -140,7 +153,10 @@ export function BoardComponent(props: BoardProps) {
                     onLineClick={battlefieldLineSelect}
 
                     playerLinesCanBeSelected={!!selectedCard}
-                    selectableLines={selectedCard && selectedCard.types.flatMap(type => CARD_AUTHORIZED_LINES[type])}
+                    selectableLines={(selectedCard && isPlacedCard(selectedCard)) ? 
+                                        selectedCard.unitTypes.flatMap(type => CARD_AUTHORIZED_LINES[type]) 
+                                        : null
+                                    }
                 />
             </div>
             <div className={styles.playerHand}>

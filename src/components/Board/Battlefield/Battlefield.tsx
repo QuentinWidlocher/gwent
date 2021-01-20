@@ -1,23 +1,23 @@
 import { prop, sum } from "ramda"
 import React from "react"
-import { Card } from "../../../models/card"
+import { Card, isPlacedCard, PlacedCard } from "../../../models/card"
 import { BATTLEFIELD_LINE } from "../../../models/constants"
 import styles from "./Battlefield.module.css"
 import { BattlefieldLineComponent } from "./BattlefieldLine/BattlefieldLine"
 
 export interface BattlefieldProps {
-    enemySiegeLine: Card[],
-    enemyRangedLine: Card[],
-    enemyMeleeLine: Card[],
-    playerMeleeLine: Card[],
-    playerRangedLine: Card[],
-    playerSiegeLine: Card[],
+    enemySiegeLine: PlacedCard[],
+    enemyRangedLine: PlacedCard[],
+    enemyMeleeLine: PlacedCard[],
+    playerMeleeLine: PlacedCard[],
+    playerRangedLine: PlacedCard[],
+    playerSiegeLine: PlacedCard[],
     onLineClick?: (lineType: BATTLEFIELD_LINE) => void,
     playerLinesCanBeSelected?: boolean,
     selectableLines: BATTLEFIELD_LINE[] | null,
 }
 
-type LineConfig = { type: BATTLEFIELD_LINE, style: string, cards: Card[], canBeSelected: boolean }
+type LineConfig = { type: BATTLEFIELD_LINE, style: string, cards: PlacedCard[], canBeSelected: boolean }
 
 export function BattlefieldComponent(props: BattlefieldProps) {
 
@@ -39,7 +39,7 @@ export function BattlefieldComponent(props: BattlefieldProps) {
             <BattlefieldLineComponent
                 cards={line.cards}
                 type={line.type}
-                totalStrength={sum(line.cards.map(c => c.strength ?? 0))}
+                totalStrength={sum(line.cards.filter(isPlacedCard).map(c => c.strength ?? 0))}
                 canBeSelected={line.canBeSelected}
                 dark={i % 2 == 0}
                 onClick={() => !!props.onLineClick && props.onLineClick(line.type)}

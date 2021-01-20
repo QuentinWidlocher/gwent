@@ -1,10 +1,10 @@
 import React from "react"
-import { Card, cardToComponent } from "../../../../models/card"
+import { Card, cardToComponent, PlacedCard } from "../../../../models/card"
 import { BATTLEFIELD_LINE } from "../../../../models/constants"
 import styles from "./BattlefieldLine.module.css"
 
 export interface BattlefieldLineProps {
-    cards: Card[],
+    cards: PlacedCard[],
     type: BATTLEFIELD_LINE,
     totalStrength: number
     dark?: boolean,
