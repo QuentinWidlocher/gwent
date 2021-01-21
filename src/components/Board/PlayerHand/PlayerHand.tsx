@@ -1,20 +1,21 @@
-import React, { useState } from "react"
-import { Card } from "../../../models/card"
+import React from "react"
+import { notNil } from "../../../helpers/helpers"
+import { Card } from "../../../types/card"
 import { CardComponent } from "../Card/Card"
 import styles from "./PlayerHand.module.css"
 
-export interface PlayerHandProps {
+export type PlayerHandProps = {
     cards: Card[]
     selectedCard: Card | null,
-    onCardSelect?: (card: Card) => void
-    canSelectCards?: boolean
+    onCardSelect: (card: Card) => void
+    canSelectCards: boolean
 }
 
 export function PlayerHandComponent(props: PlayerHandProps) {
 
     function onCardSelect(index: number) {
         const selectedCard = props.cards[index] ?? null
-        if (!!props.onCardSelect && !!selectedCard) {
+        if (notNil(selectedCard)) {
             props.onCardSelect(selectedCard)
         }
     }
@@ -25,9 +26,9 @@ export function PlayerHandComponent(props: PlayerHandProps) {
                 <CardComponent
                     card={card}
                     canBeSelected={props.canSelectCards}
-                    selected={props.cards.findIndex(card => card.title == props.selectedCard?.title) == index}
+                    selected={props.cards.findIndex(card => card.id == props.selectedCard?.id) == index}
                     onClick={() => onCardSelect(index)}
-                    key={`player_hand_card_${index}_${card.title}`}
+                    key={card.id}
                 />
             ))}
         </div>

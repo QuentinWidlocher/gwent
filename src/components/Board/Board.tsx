@@ -1,44 +1,35 @@
-import { remove, sum } from "ramda"
+import { sum } from "ramda"
 import React, { useEffect, useState } from "react"
-import { notNil } from "../../helpers"
-import { BaseCard, Card, GameState, isPlacedCard, Modifier, PlacedCard } from "../../models/card"
-import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, ENEMY_LINES, PLAYER_LINES } from "../../models/cardlist"
+import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, EMPTY_BATTLEFIELD_ROWS, ENEMY_LINES, PLAYER_LINES } from "../../constants/constants"
+import { getLineStrength, isPlacedCard } from "../../helpers/cards"
+import { notNil } from "../../helpers/helpers"
+import { BaseCard, Card, Modifier, PlacedCard } from "../../types/card"
+import { GameState } from "../../types/game-state"
 import { BattlefieldComponent } from "./Battlefield/Battlefield"
 import styles from "./Board.module.css"
 import { PlayerHandComponent } from "./PlayerHand/PlayerHand"
 import { ScoresComponent } from "./Scores/Scores"
 
-export interface BoardProps {
+export type BoardProps = {
     playerDeck: Card[]
     enemyDeck: Card[]
 }
-
-export interface Round {
+export type Round = {
     playerPoints: number,
     enemyPoints: number
 }
 
-export type BattlefieldRows = Record<BATTLEFIELD_LINE, PlacedCard[]>
-
 const enemyFakeThinkingTime = 500
-export const emptyBattlefieldRows: BattlefieldRows = {
-    [BATTLEFIELD_LINE.ENEMY_SIEGE]: [],
-    [BATTLEFIELD_LINE.ENEMY_RANGED]: [],
-    [BATTLEFIELD_LINE.ENEMY_MELEE]: [],
-    [BATTLEFIELD_LINE.PLAYER_MELEE]: [],
-    [BATTLEFIELD_LINE.PLAYER_RANGED]: [],
-    [BATTLEFIELD_LINE.PLAYER_SIEGE]: [],
-}
 
 export function BoardComponent(props: BoardProps) {
 
     const [selectedCard, setSelectedCard] = useState<Card | null>(null)
-    const [rows, setRows] = useState(emptyBattlefieldRows)
+    const [battlefield, setBattlefield] = useState(EMPTY_BATTLEFIELD_ROWS)
 
     const [playerHand, setPlayerHand] = useState<Card[]>(props.playerDeck.slice(0, 10))
     const [enemyHand, setEnemyHand] = useState<Card[]>(props.enemyDeck.slice(0, 10))
 
-    const [playerTurn, setPlayerTurn] = useState<boolean>(true)//Math.random() >= 0.5)
+    const [playerTurn, setPlayerTurn] = useState<boolean>(Math.random() >= 0.5)
 
     const [playerPoints, setPlayerPoints] = useState(0)
     const [enemyPoints, setEnemyPoints] = useState(0)
@@ -46,32 +37,46 @@ export function BoardComponent(props: BoardProps) {
     const [rounds, setRounds] = useState<Round[]>([])
 
     useEffect(function enemyTurn() {
+
+        // The enemy only plays on his turn if he still have cards
         if (!playerTurn && enemyHand.length > 0) {
+            // Select a random card from his hand
             let enemySelectedCard = enemyHand[Math.floor(Math.random() * enemyHand.length)]
 
+            // Place it on the battlefield or play the effect
             if (isPlacedCard(enemySelectedCard)) {
-                let availableLines = enemySelectedCard.unitTypes.flatMap(type => CARD_AUTHORIZED_LINES[type].filter(line => ENEMY_LINES.includes(line)))
+                // Find all line where the card can naturally go
+                // TODO: allow the enemy to play spies
+                let availableLines = enemySelectedCard.unitTypes
+                    .flatMap(type => CARD_AUTHORIZED_LINES[type])
+                    .filter(line => ENEMY_LINES.includes(line))
+
+                // Select a random line
                 let enemySelectedLine = availableLines[Math.floor(Math.random() * availableLines.length)]
+
                 placeCard(enemySelectedCard, enemySelectedLine, false)
             } else {
                 playCard(enemySelectedCard, false)
             }
+
             setPlayerTurn(true)
         }
     }, [playerTurn])
 
+    // Trigger each time the battlefield change
     useEffect(function computePoints() {
         setPlayerPoints(getTotalPoints(PLAYER_LINES))
         setEnemyPoints(getTotalPoints(ENEMY_LINES))
-    }, [Object.values(rows)])
+    }, [Object.values(battlefield)])
 
     useEffect(function onRoundChange() {
 
+        // Count the winned rounds (excluding draws of course)
         let enemyVictories = rounds.filter(({ enemyPoints, playerPoints }) => enemyPoints > playerPoints).length
         let playerVictories = rounds.filter(({ enemyPoints, playerPoints }) => enemyPoints < playerPoints).length
 
+        // The game end if a player has won 2 rounds, or after 3 rounds
         if (rounds.length >= 3 || enemyVictories >= 2 || playerVictories >= 2) {
-            console.log(rounds)
             if (enemyVictories == playerVictories) {
                 alert('Draw !')
             } else {
@@ -81,31 +86,37 @@ export function BoardComponent(props: BoardProps) {
         }
     }, [rounds])
 
+    // Compute how many lines are worth taking in account the card modifiers
     function computeBattlefieldPoints() {
-        let newBattlefield = emptyBattlefieldRows
+        let newBattlefield = { ...EMPTY_BATTLEFIELD_ROWS }
 
         for (let lineType in BATTLEFIELD_LINE) {
-            let line = rows[(Number(lineType)) as BATTLEFIELD_LINE]
+            // How hard can it be to iterate over enums huh ?
+            let line = battlefield[(Number(lineType)) as BATTLEFIELD_LINE]
 
             if (!line) continue
 
-            line = line.map(card => ({ ...card, apparentStrength: card.strength }))
+            // We reset all the strength to count again
+            line = line.map(card => ({ ...card, strength: card.originalStrength }))
 
-            let lineModifiers: [Modifier, PlacedCard][] = []
+            // A line modifier is a card and its modifier
+            // We collect all the modifiers in the line
+            let lineModifiers: [Modifier, PlacedCard][] = line
+                .filter(card => notNil(card.modifyPoints))
+                .map(card => [card.modifyPoints!, card])
 
-            for (let card of line) {
-                if (notNil(card.modifyPoints)) {
-                    lineModifiers.push([card.modifyPoints, card])
-                }
-            }
-
+            // We sort the modifier starting from 0 to n
             let modifiers = lineModifiers.sort(([m]) => m.priority).reverse()
+
+            // For each modifier, we provide its function the entire line and we get back the modified line
+            // We then provide the modified line to the next modifier and so on
             let newLine = modifiers.reduce((curLine, [m, c]) => m.effect(c, curLine), line)
 
+            // We then assign the completely modified line to the new battlefield
             newBattlefield[(Number(lineType)) as BATTLEFIELD_LINE] = newLine
         }
 
-        setRows(newBattlefield)
+        setBattlefield(newBattlefield)
     }
 
     function removeCardFromHand(card: Card, hand: Card[]): Card[] {
@@ -114,22 +125,25 @@ export function BoardComponent(props: BoardProps) {
         return mutatedHand
     }
 
+    // Placing the card means putting it on the battlefield
     function placeCard(card: PlacedCard, line: BATTLEFIELD_LINE, fromPlayerHand: boolean) {
-        card.apparentStrength = card.strength
+        // We make sure the card has a strength to display
+        card.strength = card.originalStrength
 
-        let rowsWithCard = rows
+        let rowsWithCard = { ...battlefield }
         rowsWithCard[line].push(card)
-        setRows(rowsWithCard)
 
         playCard(card, fromPlayerHand, { board: rowsWithCard })
 
         computeBattlefieldPoints()
     }
 
+    // Playing a card is independant from playing it on the board or activating a special card
     function playCard(card: Card, fromPlayerHand: boolean, alreadyModifiedGameState?: Partial<GameState>) {
 
         let handWithoutCard = removeCardFromHand(card, fromPlayerHand ? playerHand : enemyHand)
 
+        // We make a snapshot of the game right now (having placed the card from the hand to the battlefield if necessary)
         let newGameState = {
             playerDeck: [],
             playerDiscard: [],
@@ -137,36 +151,43 @@ export function BoardComponent(props: BoardProps) {
             enemyDeck: [],
             enemyDiscard: [],
             enemyHand: (fromPlayerHand ? enemyHand : handWithoutCard),
-            board: rows,
+            board: battlefield,
             ...alreadyModifiedGameState
         }
 
+        // We update the game state if the card has an effect
         if (notNil(card.onCardPlayed)) {
             newGameState = card.onCardPlayed(card, newGameState);
         }
 
+        // We then update the component with this new game state
+        // TODO: implement all the components
         // setPlayerDeck(newGameState.playerDeck)
         // setPlayerDiscard(newGameState.playerDiscard)
         setPlayerHand(newGameState.playerHand)
         // setEnemyDeck(newGameState.enemyDeck)
         // setEnemyDiscard(newGameState.enemyDiscard)
         setEnemyHand(newGameState.enemyHand)
-        setRows(newGameState.board)
+        setBattlefield(newGameState.board)
 
         endTurn()
     }
 
+    // When the player clicks on a line
     function battlefieldLineSelect(lineType: BATTLEFIELD_LINE, card: PlacedCard) {
         let authorizedLines: BATTLEFIELD_LINE[] = []
 
+        // If a card has authorizedLines, they override the defaults authorized line
         if (notNil(card.authorizedLines)) {
             authorizedLines = card.authorizedLines
         } else {
+            // By default, a card is authorized to be placed on the card type row, in the player lines
             authorizedLines = card.unitTypes
                 .flatMap(type => CARD_AUTHORIZED_LINES[type])
                 .filter(line => PLAYER_LINES.includes(line))
         }
 
+        // If we cannot place the card on the selected line we stop
         if (!authorizedLines.includes(lineType)) {
             return
         }
@@ -174,6 +195,7 @@ export function BoardComponent(props: BoardProps) {
         placeCard(card, lineType, true)
     }
 
+    // When the player clicks on the battlefield to play a special card
     function battlefieldAllSelect(card: BaseCard) {
         playCard(card, true)
     }
@@ -191,13 +213,15 @@ export function BoardComponent(props: BoardProps) {
         }
     }
 
+    // Unselect the card and play the next turn
     function endTurn() {
         setSelectedCard(null)
         setTimeout(() => setPlayerTurn(!playerTurn), enemyFakeThinkingTime)
     }
 
+    // Sum the sums of all lines
     function getTotalPoints(rowList: BATTLEFIELD_LINE[]) {
-        return sum(rowList.flatMap(line => rows[line].filter(isPlacedCard).map(card => card.apparentStrength ?? card.strength)))
+        return sum(rowList.flatMap(line => getLineStrength(battlefield[line])))
     }
 
     function endRound() {
@@ -206,9 +230,11 @@ export function BoardComponent(props: BoardProps) {
         }
 
         setRounds([...rounds, { playerPoints, enemyPoints }])
-        setRows(emptyBattlefieldRows)
+        setBattlefield(EMPTY_BATTLEFIELD_ROWS)
     }
 
+    // Allow highlighting rows with the same rules as placing card
+    // TODO: REALLY use the same rules instead of duplicating
     function getSelectableLines(card: PlacedCard): BATTLEFIELD_LINE[] {
         if (notNil(card.authorizedLines)) {
             return card.authorizedLines
@@ -233,12 +259,12 @@ export function BoardComponent(props: BoardProps) {
             </div>
             <div className={styles.battlefield}>
                 <BattlefieldComponent
-                    enemySiegeLine={rows[BATTLEFIELD_LINE.ENEMY_SIEGE]}
-                    enemyRangedLine={rows[BATTLEFIELD_LINE.ENEMY_RANGED]}
-                    enemyMeleeLine={rows[BATTLEFIELD_LINE.ENEMY_MELEE]}
-                    playerMeleeLine={rows[BATTLEFIELD_LINE.PLAYER_MELEE]}
-                    playerRangedLine={rows[BATTLEFIELD_LINE.PLAYER_RANGED]}
-                    playerSiegeLine={rows[BATTLEFIELD_LINE.PLAYER_SIEGE]}
+                    enemySiegeLine={battlefield[BATTLEFIELD_LINE.ENEMY_SIEGE]}
+                    enemyRangedLine={battlefield[BATTLEFIELD_LINE.ENEMY_RANGED]}
+                    enemyMeleeLine={battlefield[BATTLEFIELD_LINE.ENEMY_MELEE]}
+                    playerMeleeLine={battlefield[BATTLEFIELD_LINE.PLAYER_MELEE]}
+                    playerRangedLine={battlefield[BATTLEFIELD_LINE.PLAYER_RANGED]}
+                    playerSiegeLine={battlefield[BATTLEFIELD_LINE.PLAYER_SIEGE]}
 
                     onLineClick={battlefieldSelect}
                     onBoardClick={battlefieldSelect}

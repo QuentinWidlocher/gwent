@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { BoardComponent } from '../components/Board/Board'
-import { DECKS, DECK_TYPE } from '../models/cardlist'
+import { DECK_TYPE } from '../constants/constants'
+import { DECKS } from '../constants/decks'
 interface BoardPageProps {
 
 }

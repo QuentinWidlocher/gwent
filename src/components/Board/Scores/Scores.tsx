@@ -2,7 +2,7 @@ import React from "react"
 import { Round } from "../Board"
 import styles from "./Scores.module.css"
 
-export interface ScoresProps {
+export type ScoresProps = {
     enemyPoints: number
     playerPoints: number
     rounds: Round[]

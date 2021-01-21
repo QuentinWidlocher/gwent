@@ -1,17 +1,17 @@
-import { prop, sum } from "ramda"
-import React from "react"
-import { Card, isPlacedCard, PlacedCard } from "../../../models/card"
-import { BATTLEFIELD_LINE } from "../../../models/cardlist"
+import { BATTLEFIELD_LINE } from "../../../constants/constants"
+import { getLineStrength } from "../../../helpers/cards"
+import { BattlefieldLine } from "../../../types/aliases"
+import { PlacedCard } from "../../../types/card"
 import styles from "./Battlefield.module.css"
 import { BattlefieldLineComponent } from "./BattlefieldLine/BattlefieldLine"
 
-export interface BattlefieldProps {
-    enemySiegeLine: PlacedCard[],
-    enemyRangedLine: PlacedCard[],
-    enemyMeleeLine: PlacedCard[],
-    playerMeleeLine: PlacedCard[],
-    playerRangedLine: PlacedCard[],
-    playerSiegeLine: PlacedCard[],
+export type BattlefieldProps = {
+    enemySiegeLine: BattlefieldLine,
+    enemyRangedLine: BattlefieldLine,
+    enemyMeleeLine: BattlefieldLine,
+    playerMeleeLine: BattlefieldLine,
+    playerRangedLine: BattlefieldLine,
+    playerSiegeLine: BattlefieldLine,
 
     onLineClick: (lineType: BATTLEFIELD_LINE) => void,
     onBoardClick: () => void,
@@ -44,7 +44,7 @@ export function BattlefieldComponent(props: BattlefieldProps) {
             <BattlefieldLineComponent
                 cards={line.cards}
                 type={line.type}
-                totalStrength={sum(line.cards.filter(isPlacedCard).map(c => c.apparentStrength ?? c.strength))}
+                totalStrength={getLineStrength(line.cards)}
                 canBeSelected={line.canBeSelected}
                 dark={i % 2 == 0}
                 onClick={() => props.onLineClick(line.type)}
@@ -56,11 +56,7 @@ export function BattlefieldComponent(props: BattlefieldProps) {
         <div className={styles.battlefield}>
             <div
                 className={props.battlefieldCanBeSelected ? styles.selection : ''}
-                onClick={() => {
-                    console.debug(props.battlefieldCanBeSelected)
-                    if (props.battlefieldCanBeSelected)
-                        props.onBoardClick()
-                }}
+                onClick={() => props.battlefieldCanBeSelected && props.onBoardClick()}
             ></div>
 
             {lines}
