@@ -1,6 +1,5 @@
 import { Card, isPlacedCard, PlacedCard } from "../../../models/card"
-import { CARD_TYPE } from "../../../models/cardlist"
-import { CARD_TYPE_NAMES, PLACED_CARD_TYPE_NAMES } from "../../../models/constants"
+import { PLACED_CARD_TYPE_NAMES } from "../../../models/cardlist"
 import styles from "./Card.module.css"
 
 export interface CardProps {

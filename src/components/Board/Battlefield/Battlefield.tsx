@@ -1,7 +1,7 @@
 import { prop, sum } from "ramda"
 import React from "react"
 import { Card, isPlacedCard, PlacedCard } from "../../../models/card"
-import { BATTLEFIELD_LINE } from "../../../models/constants"
+import { BATTLEFIELD_LINE } from "../../../models/cardlist"
 import styles from "./Battlefield.module.css"
 import { BattlefieldLineComponent } from "./BattlefieldLine/BattlefieldLine"
 

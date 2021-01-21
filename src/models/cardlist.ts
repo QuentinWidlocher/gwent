@@ -1,4 +1,34 @@
-import { Card, PlacedCard } from './card';
+import { Card, GameState, PlacedCard } from './card';
+
+export enum BATTLEFIELD_LINE {
+    ENEMY_SIEGE,
+    ENEMY_RANGED,
+    ENEMY_MELEE,
+    PLAYER_MELEE,
+    PLAYER_RANGED,
+    PLAYER_SIEGE,
+}
+
+export const PLAYER_LINES = [
+    BATTLEFIELD_LINE.PLAYER_MELEE,
+    BATTLEFIELD_LINE.PLAYER_RANGED,
+    BATTLEFIELD_LINE.PLAYER_SIEGE,
+];
+
+export const ENEMY_LINES = [
+    BATTLEFIELD_LINE.ENEMY_MELEE,
+    BATTLEFIELD_LINE.ENEMY_RANGED,
+    BATTLEFIELD_LINE.ENEMY_SIEGE,
+];
+
+export const LINES_NAME: Record<BATTLEFIELD_LINE, string> = {
+    [BATTLEFIELD_LINE.ENEMY_SIEGE]: 'Siege',
+    [BATTLEFIELD_LINE.ENEMY_RANGED]: 'Ranged',
+    [BATTLEFIELD_LINE.ENEMY_MELEE]: 'Melee',
+    [BATTLEFIELD_LINE.PLAYER_MELEE]: 'Melee',
+    [BATTLEFIELD_LINE.PLAYER_RANGED]: 'Ranged',
+    [BATTLEFIELD_LINE.PLAYER_SIEGE]: 'Siege',
+};
 
 export enum DECK_TYPE {
     NORTHERN_REALMS,
@@ -21,11 +51,36 @@ export enum PLACED_CARD_TYPE {
     HERO,
 }
 
-function medicEffect() {
-    console.log('medic effect');
+export const CARD_TYPE_NAMES: Record<CARD_TYPE, string> = {
+    [CARD_TYPE.PLACED]: 'Unit',
+    [CARD_TYPE.EFFECT]: 'Effect',
+    [CARD_TYPE.MODIFIER]: 'Modifier',
+};
+
+export const PLACED_CARD_TYPE_NAMES: Record<PLACED_CARD_TYPE, string> = {
+    [PLACED_CARD_TYPE.MELEE]: 'Melee',
+    [PLACED_CARD_TYPE.RANGED]: 'Ranged',
+    [PLACED_CARD_TYPE.SIEGE]: 'Siege',
+    [PLACED_CARD_TYPE.HERO]: 'Hero',
+}
+
+export const CARD_AUTHORIZED_LINES: Record<PLACED_CARD_TYPE, BATTLEFIELD_LINE[]> = {
+    [PLACED_CARD_TYPE.MELEE]: [BATTLEFIELD_LINE.ENEMY_MELEE, BATTLEFIELD_LINE.PLAYER_MELEE],
+    [PLACED_CARD_TYPE.RANGED]: [BATTLEFIELD_LINE.ENEMY_RANGED, BATTLEFIELD_LINE.PLAYER_RANGED],
+    [PLACED_CARD_TYPE.SIEGE]: [BATTLEFIELD_LINE.ENEMY_SIEGE, BATTLEFIELD_LINE.PLAYER_SIEGE],
+    [PLACED_CARD_TYPE.HERO]: [],
+};
+
+function medicEffect(state: GameState): GameState {
+    console.log('medic effect')
+    return state
+}
+function clearWeatherEffect(state: GameState): GameState {
+    console.log('clear weather effect')
+    return state
 }
 function moraleBoostEffect(self: PlacedCard, line: PlacedCard[]): PlacedCard[] {
-    console.log('morale boost effect');
+    console.log('morale boost effect')
     return line.map((card) => {
         if (card != self) {
             return {
@@ -33,15 +88,17 @@ function moraleBoostEffect(self: PlacedCard, line: PlacedCard[]): PlacedCard[] {
                 apparentStrength: !!card.apparentStrength ? card.apparentStrength + 1 : card.strength + 1,
             };
         } else {
-            return card;
+            return card
         }
     });
 }
-function musterEffect() {
-    console.log('muster effect');
+function musterEffect(state: GameState): GameState {
+    console.log('muster effect')
+    return state
 }
-function spyEffect() {
-    console.log('spy effect');
+function spyEffect(state: GameState): GameState {
+    console.log('spy effect')
+    return state
 }
 function tightBondEffect(self: PlacedCard, line: PlacedCard[]): PlacedCard[] {
     console.log('tight bond effect');
@@ -60,18 +117,20 @@ function tightBondEffect(self: PlacedCard, line: PlacedCard[]): PlacedCard[] {
     });
 }
 function weatherEffect(self: PlacedCard, line: PlacedCard[]): PlacedCard[] {
-    console.log('weather effect');
-    return line;
+    console.log('weather effect')
+    return line
 }
 function commandersHornEffect(self: PlacedCard, line: PlacedCard[]): PlacedCard[] {
-    console.log('horn effect');
-    return line;
+    console.log('horn effect')
+    return line
 }
-function decoyEffect() {
-    console.log('decoy effect');
+function decoyEffect(state: GameState): GameState {
+    console.log('decoy effect')
+    return state
 }
-function scorchEffect() {
-    console.log('scorch effect');
+function scorchEffect(state: GameState): GameState {
+    console.log('scorch effect')
+    return state
 }
 
 export const CARD_LIST: (Card & { occurence: number })[] = [
@@ -114,6 +173,7 @@ export const CARD_LIST: (Card & { occurence: number })[] = [
         type: CARD_TYPE.PLACED,
         strength: 1,
         unitTypes: [PLACED_CARD_TYPE.SIEGE],
+        authorizedLines: [BATTLEFIELD_LINE.ENEMY_SIEGE],
         occurence: 1,
     },
     {
@@ -163,6 +223,7 @@ export const CARD_LIST: (Card & { occurence: number })[] = [
         type: CARD_TYPE.PLACED,
         strength: 4,
         unitTypes: [PLACED_CARD_TYPE.MELEE],
+        authorizedLines: [BATTLEFIELD_LINE.ENEMY_MELEE],
         occurence: 1,
     },
     {
@@ -216,6 +277,7 @@ export const CARD_LIST: (Card & { occurence: number })[] = [
         type: CARD_TYPE.PLACED,
         strength: 5,
         unitTypes: [PLACED_CARD_TYPE.MELEE],
+        authorizedLines: [BATTLEFIELD_LINE.ENEMY_MELEE],
         occurence: 1,
     },
     {
@@ -419,7 +481,7 @@ export const CARD_LIST: (Card & { occurence: number })[] = [
     {
         deckType: DECK_TYPE.NEUTRAL,
         title: 'Clear Weather',
-        onCardPlayed: () => {},
+        onCardPlayed: clearWeatherEffect,
         type: CARD_TYPE.EFFECT,
         occurence: 2,
     },

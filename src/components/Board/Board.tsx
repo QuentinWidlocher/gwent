@@ -1,7 +1,7 @@
 import { remove, sum } from "ramda"
 import React, { useEffect, useState } from "react"
 import { Card, isPlacedCard, Modifier, PlacedCard } from "../../models/card"
-import { BATTLEFIELD_LINE, ENEMY_LINES, CARD_AUTHORIZED_LINES, PLAYER_LINES } from "../../models/constants"
+import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, ENEMY_LINES, PLAYER_LINES } from "../../models/cardlist"
 import { BattlefieldComponent } from "./Battlefield/Battlefield"
 import styles from "./Board.module.css"
 import { PlayerHandComponent } from "./PlayerHand/PlayerHand"
@@ -83,8 +83,7 @@ export function BoardComponent(props: BoardProps) {
 
         for (let lineType in BATTLEFIELD_LINE) {
             let line = rows[(Number(lineType)) as BATTLEFIELD_LINE]
-            console.debug('lineType', lineType)
-            console.debug('line', line);
+
             if (!line) continue
 
             line = line.map(card => ({ ...card, apparentStrength: card.strength }))
@@ -99,13 +98,10 @@ export function BoardComponent(props: BoardProps) {
 
             let modifiers = lineModifiers.sort(([m]) => m.priority).reverse()
             let newLine = modifiers.reduce((curLine, [m, c]) => m.effect(c, curLine), line)
-            console.debug('newLine', newLine);
 
             newBattlefield[(Number(lineType)) as BATTLEFIELD_LINE] = newLine
         }
 
-        console.debug('rows', rows);
-        console.debug('newBattlefield', newBattlefield);
         setRows(newBattlefield)
     }
 
@@ -121,7 +117,19 @@ export function BoardComponent(props: BoardProps) {
         setHand(mutatedHand)
 
         if (!!card.onCardPlayed) {
-            card.onCardPlayed()
+            let { playerHand: newPlayerHand, enemyHand: newEnemyHand, board: newBoard } = card.onCardPlayed({
+                playerDeck: [],
+                playerDiscard: [],
+                playerHand,
+                enemyDeck: [],
+                enemyDiscard: [],
+                enemyHand,
+                board: rows
+            });
+
+            setPlayerHand(newPlayerHand)
+            setEnemyHand(newEnemyHand)
+            setRows(newBoard)
         }
 
         computeBattlefieldPoints()

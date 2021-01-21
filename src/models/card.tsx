@@ -1,12 +1,22 @@
 import React from "react"
 import { CardComponent } from "../components/Board/Card/Card"
-import { CARD_TYPE, DECK_TYPE, PLACED_CARD_TYPE } from "./cardlist"
-import { BATTLEFIELD_LINE } from "./constants"
+import { BATTLEFIELD_LINE, CARD_TYPE, DECK_TYPE, PLACED_CARD_TYPE } from "./cardlist"
+
+export interface GameState {
+    playerHand: Card[],
+    enemyHand: Card[],
+    playerDeck: Card[],
+    enemyDeck: Card[],
+    playerDiscard: Card[],
+    enemyDiscard: Card[],
+    board: Record<BATTLEFIELD_LINE, PlacedCard[]>
+}
+
 export interface BaseCard {
     type: CARD_TYPE
     title: string
     deckType: DECK_TYPE
-    onCardPlayed?: () => void
+    onCardPlayed?: (state: GameState) => GameState
     modifyPoints?: Modifier
 }
 
