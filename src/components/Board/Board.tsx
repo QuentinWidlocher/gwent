@@ -1,6 +1,7 @@
 import { remove, sum } from "ramda"
 import React, { useEffect, useState } from "react"
-import { Card, isPlacedCard, Modifier, PlacedCard } from "../../models/card"
+import { notNil } from "../../helpers"
+import { BaseCard, Card, GameState, isPlacedCard, Modifier, PlacedCard } from "../../models/card"
 import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, ENEMY_LINES, PLAYER_LINES } from "../../models/cardlist"
 import { BattlefieldComponent } from "./Battlefield/Battlefield"
 import styles from "./Board.module.css"
@@ -17,20 +18,22 @@ export interface Round {
     enemyPoints: number
 }
 
+export type BattlefieldRows = Record<BATTLEFIELD_LINE, PlacedCard[]>
+
+const enemyFakeThinkingTime = 500
+export const emptyBattlefieldRows: BattlefieldRows = {
+    [BATTLEFIELD_LINE.ENEMY_SIEGE]: [],
+    [BATTLEFIELD_LINE.ENEMY_RANGED]: [],
+    [BATTLEFIELD_LINE.ENEMY_MELEE]: [],
+    [BATTLEFIELD_LINE.PLAYER_MELEE]: [],
+    [BATTLEFIELD_LINE.PLAYER_RANGED]: [],
+    [BATTLEFIELD_LINE.PLAYER_SIEGE]: [],
+}
+
 export function BoardComponent(props: BoardProps) {
 
-    const enemyFakeThinkingTime = 500
-    const emptyRows: Record<BATTLEFIELD_LINE, PlacedCard[]> = {
-        [BATTLEFIELD_LINE.ENEMY_SIEGE]: [],
-        [BATTLEFIELD_LINE.ENEMY_RANGED]: [],
-        [BATTLEFIELD_LINE.ENEMY_MELEE]: [],
-        [BATTLEFIELD_LINE.PLAYER_MELEE]: [],
-        [BATTLEFIELD_LINE.PLAYER_RANGED]: [],
-        [BATTLEFIELD_LINE.PLAYER_SIEGE]: [],
-    }
-
     const [selectedCard, setSelectedCard] = useState<Card | null>(null)
-    const [rows, setRows] = useState(emptyRows)
+    const [rows, setRows] = useState(emptyBattlefieldRows)
 
     const [playerHand, setPlayerHand] = useState<Card[]>(props.playerDeck.slice(0, 10))
     const [enemyHand, setEnemyHand] = useState<Card[]>(props.enemyDeck.slice(0, 10))
@@ -49,9 +52,9 @@ export function BoardComponent(props: BoardProps) {
             if (isPlacedCard(enemySelectedCard)) {
                 let availableLines = enemySelectedCard.unitTypes.flatMap(type => CARD_AUTHORIZED_LINES[type].filter(line => ENEMY_LINES.includes(line)))
                 let enemySelectedLine = availableLines[Math.floor(Math.random() * availableLines.length)]
-                playCard(enemySelectedCard, enemySelectedLine, enemyHand, setEnemyHand)
+                placeCard(enemySelectedCard, enemySelectedLine, false)
             } else {
-
+                playCard(enemySelectedCard, false)
             }
             setPlayerTurn(true)
         }
@@ -79,7 +82,7 @@ export function BoardComponent(props: BoardProps) {
     }, [rounds])
 
     function computeBattlefieldPoints() {
-        let newBattlefield = emptyRows
+        let newBattlefield = emptyBattlefieldRows
 
         for (let lineType in BATTLEFIELD_LINE) {
             let line = rows[(Number(lineType)) as BATTLEFIELD_LINE]
@@ -91,7 +94,7 @@ export function BoardComponent(props: BoardProps) {
             let lineModifiers: [Modifier, PlacedCard][] = []
 
             for (let card of line) {
-                if (!!card.modifyPoints) {
+                if (notNil(card.modifyPoints)) {
                     lineModifiers.push([card.modifyPoints, card])
                 }
             }
@@ -105,61 +108,92 @@ export function BoardComponent(props: BoardProps) {
         setRows(newBattlefield)
     }
 
-    function playCard(card: PlacedCard, line: BATTLEFIELD_LINE, hand: Card[], setHand: (cards: Card[]) => void) {
+    function removeCardFromHand(card: Card, hand: Card[]): Card[] {
+        let mutatedHand = [...hand]
+        mutatedHand.splice(hand.findIndex(c => c.id == card.id), 1)
+        return mutatedHand
+    }
+
+    function placeCard(card: PlacedCard, line: BATTLEFIELD_LINE, fromPlayerHand: boolean) {
         card.apparentStrength = card.strength
 
-        let mutatedRow = rows
-        mutatedRow[line].push(card)
-        setRows(mutatedRow)
+        let rowsWithCard = rows
+        rowsWithCard[line].push(card)
+        setRows(rowsWithCard)
 
-        let mutatedHand = [...hand]
-        mutatedHand.splice(hand.findIndex(c => c.title == card.title), 1)
-        setHand(mutatedHand)
-
-        if (!!card.onCardPlayed) {
-            let { playerHand: newPlayerHand, enemyHand: newEnemyHand, board: newBoard } = card.onCardPlayed({
-                playerDeck: [],
-                playerDiscard: [],
-                playerHand,
-                enemyDeck: [],
-                enemyDiscard: [],
-                enemyHand,
-                board: rows
-            });
-
-            setPlayerHand(newPlayerHand)
-            setEnemyHand(newEnemyHand)
-            setRows(newBoard)
-        }
+        playCard(card, fromPlayerHand, { board: rowsWithCard })
 
         computeBattlefieldPoints()
     }
 
-    function battlefieldLineSelect(lineType: BATTLEFIELD_LINE) {
+    function playCard(card: Card, fromPlayerHand: boolean, alreadyModifiedGameState?: Partial<GameState>) {
+
+        let handWithoutCard = removeCardFromHand(card, fromPlayerHand ? playerHand : enemyHand)
+
+        let newGameState = {
+            playerDeck: [],
+            playerDiscard: [],
+            playerHand: (fromPlayerHand ? handWithoutCard : playerHand),
+            enemyDeck: [],
+            enemyDiscard: [],
+            enemyHand: (fromPlayerHand ? enemyHand : handWithoutCard),
+            board: rows,
+            ...alreadyModifiedGameState
+        }
+
+        if (notNil(card.onCardPlayed)) {
+            newGameState = card.onCardPlayed(card, newGameState);
+        }
+
+        // setPlayerDeck(newGameState.playerDeck)
+        // setPlayerDiscard(newGameState.playerDiscard)
+        setPlayerHand(newGameState.playerHand)
+        // setEnemyDeck(newGameState.enemyDeck)
+        // setEnemyDiscard(newGameState.enemyDiscard)
+        setEnemyHand(newGameState.enemyHand)
+        setRows(newGameState.board)
+
+        endTurn()
+    }
+
+    function battlefieldLineSelect(lineType: BATTLEFIELD_LINE, card: PlacedCard) {
+        let authorizedLines: BATTLEFIELD_LINE[] = []
+
+        if (notNil(card.authorizedLines)) {
+            authorizedLines = card.authorizedLines
+        } else {
+            authorizedLines = card.unitTypes
+                .flatMap(type => CARD_AUTHORIZED_LINES[type])
+                .filter(line => PLAYER_LINES.includes(line))
+        }
+
+        if (!authorizedLines.includes(lineType)) {
+            return
+        }
+
+        placeCard(card, lineType, true)
+    }
+
+    function battlefieldAllSelect(card: BaseCard) {
+        playCard(card, true)
+    }
+
+    function battlefieldSelect(lineType?: BATTLEFIELD_LINE) {
         // You can't play if you haven't selected a card
         if (!selectedCard) {
             return
         }
 
-        // You can't play on the enemy side
-        if (ENEMY_LINES.includes(lineType)) {
-            return
-        }
-
-        if (isPlacedCard(selectedCard)) {
-            // You can't play on a wrong line
-            if (!selectedCard.unitTypes.some(type => CARD_AUTHORIZED_LINES[type].includes(lineType))) {
-                return
-            }
-
-            playCard(selectedCard, lineType, playerHand, setPlayerHand)
+        if (notNil(lineType) && isPlacedCard(selectedCard)) {
+            battlefieldLineSelect(lineType, selectedCard)
         } else {
-
+            battlefieldAllSelect(selectedCard)
         }
+    }
 
+    function endTurn() {
         setSelectedCard(null)
-
-        setTimeout(() => setPlayerTurn(false), enemyFakeThinkingTime)
+        setTimeout(() => setPlayerTurn(!playerTurn), enemyFakeThinkingTime)
     }
 
     function getTotalPoints(rowList: BATTLEFIELD_LINE[]) {
@@ -172,7 +206,20 @@ export function BoardComponent(props: BoardProps) {
         }
 
         setRounds([...rounds, { playerPoints, enemyPoints }])
-        setRows(emptyRows)
+        setRows(emptyBattlefieldRows)
+    }
+
+    function getSelectableLines(card: PlacedCard): BATTLEFIELD_LINE[] {
+        if (notNil(card.authorizedLines)) {
+            return card.authorizedLines
+        } else {
+            return card.unitTypes
+                .flatMap(type => CARD_AUTHORIZED_LINES[type])
+                .filter(line => {
+                    let authorizedLines = playerTurn ? PLAYER_LINES : ENEMY_LINES
+                    return authorizedLines.includes(line)
+                })
+        }
     }
 
     return (
@@ -193,12 +240,16 @@ export function BoardComponent(props: BoardProps) {
                     playerRangedLine={rows[BATTLEFIELD_LINE.PLAYER_RANGED]}
                     playerSiegeLine={rows[BATTLEFIELD_LINE.PLAYER_SIEGE]}
 
-                    onLineClick={battlefieldLineSelect}
+                    onLineClick={battlefieldSelect}
+                    onBoardClick={battlefieldSelect}
 
-                    playerLinesCanBeSelected={!!selectedCard}
-                    selectableLines={(selectedCard && isPlacedCard(selectedCard)) ?
-                        selectedCard.unitTypes.flatMap(type => CARD_AUTHORIZED_LINES[type])
-                        : null
+                    linesCanBeSelected={notNil(selectedCard) && isPlacedCard(selectedCard)}
+                    battlefieldCanBeSelected={notNil(selectedCard) && !isPlacedCard(selectedCard)}
+
+                    selectableLines={
+                        (selectedCard && isPlacedCard(selectedCard))
+                            ? getSelectableLines(selectedCard)
+                            : null
                     }
                 />
             </div>

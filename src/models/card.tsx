@@ -15,8 +15,9 @@ export interface GameState {
 export interface BaseCard {
     type: CARD_TYPE
     title: string
+    id: string
     deckType: DECK_TYPE
-    onCardPlayed?: (state: GameState) => GameState
+    onCardPlayed?: (self: Card, state: GameState) => GameState
     modifyPoints?: Modifier
 }
 
@@ -40,5 +41,9 @@ export function isPlacedCard(card: Card): card is PlacedCard {
 }
 
 export function cardToComponent(card: PlacedCard) {
-    return (<CardComponent card={card} key={`card_${card.title}`} />)
+    return (<CardComponent card={card} key={card.id} />)
+}
+
+export function getStrength(card: PlacedCard) {
+    return (card.apparentStrength ?? card.strength)
 }

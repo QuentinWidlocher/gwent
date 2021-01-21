@@ -1,4 +1,7 @@
-import { Card, GameState, PlacedCard } from './card';
+import { isNil, not, type } from 'ramda'
+import { BattlefieldRows, emptyBattlefieldRows } from '../components/Board/Board'
+import { notNil } from '../helpers'
+import { BaseCard, Card, GameState, getStrength, PlacedCard } from './card'
 
 export enum BATTLEFIELD_LINE {
     ENEMY_SIEGE,
@@ -13,13 +16,13 @@ export const PLAYER_LINES = [
     BATTLEFIELD_LINE.PLAYER_MELEE,
     BATTLEFIELD_LINE.PLAYER_RANGED,
     BATTLEFIELD_LINE.PLAYER_SIEGE,
-];
+]
 
 export const ENEMY_LINES = [
     BATTLEFIELD_LINE.ENEMY_MELEE,
     BATTLEFIELD_LINE.ENEMY_RANGED,
     BATTLEFIELD_LINE.ENEMY_SIEGE,
-];
+]
 
 export const LINES_NAME: Record<BATTLEFIELD_LINE, string> = {
     [BATTLEFIELD_LINE.ENEMY_SIEGE]: 'Siege',
@@ -28,7 +31,7 @@ export const LINES_NAME: Record<BATTLEFIELD_LINE, string> = {
     [BATTLEFIELD_LINE.PLAYER_MELEE]: 'Melee',
     [BATTLEFIELD_LINE.PLAYER_RANGED]: 'Ranged',
     [BATTLEFIELD_LINE.PLAYER_SIEGE]: 'Siege',
-};
+}
 
 export enum DECK_TYPE {
     NORTHERN_REALMS,
@@ -55,7 +58,7 @@ export const CARD_TYPE_NAMES: Record<CARD_TYPE, string> = {
     [CARD_TYPE.PLACED]: 'Unit',
     [CARD_TYPE.EFFECT]: 'Effect',
     [CARD_TYPE.MODIFIER]: 'Modifier',
-};
+}
 
 export const PLACED_CARD_TYPE_NAMES: Record<PLACED_CARD_TYPE, string> = {
     [PLACED_CARD_TYPE.MELEE]: 'Melee',
@@ -69,52 +72,59 @@ export const CARD_AUTHORIZED_LINES: Record<PLACED_CARD_TYPE, BATTLEFIELD_LINE[]>
     [PLACED_CARD_TYPE.RANGED]: [BATTLEFIELD_LINE.ENEMY_RANGED, BATTLEFIELD_LINE.PLAYER_RANGED],
     [PLACED_CARD_TYPE.SIEGE]: [BATTLEFIELD_LINE.ENEMY_SIEGE, BATTLEFIELD_LINE.PLAYER_SIEGE],
     [PLACED_CARD_TYPE.HERO]: [],
-};
+}
 
-function medicEffect(state: GameState): GameState {
+function medicEffect(self: Card, state: GameState): GameState {
     console.log('medic effect')
     return state
 }
-function clearWeatherEffect(state: GameState): GameState {
+function clearWeatherEffect(self: Card, state: GameState): GameState {
     console.log('clear weather effect')
     return state
 }
 function moraleBoostEffect(self: PlacedCard, line: PlacedCard[]): PlacedCard[] {
     console.log('morale boost effect')
-    return line.map((card) => {
+    return line.map(card => {
         if (card != self) {
             return {
                 ...card,
                 apparentStrength: !!card.apparentStrength ? card.apparentStrength + 1 : card.strength + 1,
-            };
+            }
         } else {
             return card
         }
-    });
+    })
 }
-function musterEffect(state: GameState): GameState {
+function musterEffect(self: Card, state: GameState): GameState {
     console.log('muster effect')
+
+    while (state.playerDeck.some(card => card.title == self.title)) {
+        let index = state.playerDeck.findIndex(card => card.title == self.title)
+        state.playerHand.push(state.playerDeck[index])
+        state.playerDeck.splice(index, 1)
+    }
+
     return state
 }
-function spyEffect(state: GameState): GameState {
+function spyEffect(self: Card, state: GameState): GameState {
     console.log('spy effect')
     return state
 }
 function tightBondEffect(self: PlacedCard, line: PlacedCard[]): PlacedCard[] {
-    console.log('tight bond effect');
-    return line.map((card) => {
+    console.log('tight bond effect')
+    return line.map(card => {
         if (card == self) {
-            let howManyIdenticalCards = line.filter((c) => c.title == self.title).length;
+            let howManyIdenticalCards = line.filter(c => c.title == self.title).length
             return {
                 ...card,
                 apparentStrength: !!card.apparentStrength
                     ? card.apparentStrength * howManyIdenticalCards
                     : card.strength * howManyIdenticalCards,
-            };
+            }
         } else {
-            return card;
+            return card
         }
-    });
+    })
 }
 function weatherEffect(self: PlacedCard, line: PlacedCard[]): PlacedCard[] {
     console.log('weather effect')
@@ -124,16 +134,33 @@ function commandersHornEffect(self: PlacedCard, line: PlacedCard[]): PlacedCard[
     console.log('horn effect')
     return line
 }
-function decoyEffect(state: GameState): GameState {
+function decoyEffect(self: Card, state: GameState): GameState {
     console.log('decoy effect')
     return state
 }
-function scorchEffect(state: GameState): GameState {
+function scorchEffect(self: Card, state: GameState): GameState {
     console.log('scorch effect')
+    let cardsStrength = Object.values(state.board).flatMap(line => line.map(getStrength))
+    let maxStrength = Math.max(...cardsStrength)
+    let scorchedBoard: BattlefieldRows = emptyBattlefieldRows
+
+    for (let lineTypeString in BATTLEFIELD_LINE) {
+        let lineType = Number(lineTypeString) as BATTLEFIELD_LINE
+        let line = state.board[lineType]
+
+        if (!line) continue
+
+        let scorchedLine = line.filter(card => getStrength(card) < maxStrength)
+        scorchedBoard[lineType] = scorchedLine
+    }
+
+    state.board = scorchedBoard
     return state
 }
 
-export const CARD_LIST: (Card & { occurence: number })[] = [
+type CardWithoutId = Omit<BaseCard, 'id'> | Omit<PlacedCard, 'id'>
+
+export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
     {
         deckType: DECK_TYPE.NORTHERN_REALMS,
         title: 'Philippa Eilhart',
@@ -512,11 +539,16 @@ export const CARD_LIST: (Card & { occurence: number })[] = [
         type: CARD_TYPE.MODIFIER,
         occurence: 3,
     },
-];
+]
 
 function getActualDeck(deckType: DECK_TYPE): Card[] {
-    return CARD_LIST.filter((card) => card.deckType == deckType) // Only the card from the deck
-        .flatMap((card) => Array(card.occurence).fill(card)); // One for each occurence
+    return CARD_LIST.filter(card => card.deckType == deckType) // Only the card from the deck
+        .flatMap(card =>
+            [...Array(card.occurence)].map((_, i) => ({
+                ...card,
+                id: `${card.title.replaceAll(' ', '_')}_${i}`,
+            }))
+        ) // One for each occurence
 }
 
 export const DECKS: Record<DECK_TYPE, Card[]> = {
@@ -525,4 +557,4 @@ export const DECKS: Record<DECK_TYPE, Card[]> = {
     [DECK_TYPE.SCOIATAEL]: getActualDeck(DECK_TYPE.SCOIATAEL),
     [DECK_TYPE.MONSTER]: getActualDeck(DECK_TYPE.MONSTER),
     [DECK_TYPE.NEUTRAL]: getActualDeck(DECK_TYPE.NEUTRAL),
-};
+}

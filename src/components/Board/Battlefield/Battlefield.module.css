@@ -8,6 +8,15 @@
     width: 100%;
 }
 
+.battlefield .selection {
+    grid-area: 1 / 1 / 7 / 2;
+    z-index: 1;
+}
+
+.battlefield .selection:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
 .enemySiegeLine {
     grid-area: 1 / 1 / 2 / 2;
 }
