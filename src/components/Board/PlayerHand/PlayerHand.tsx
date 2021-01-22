@@ -20,13 +20,21 @@ export function PlayerHandComponent(props: PlayerHandProps) {
         }
     }
 
+    function findCardIndex(cardToFind: Card | null): number {
+        if (notNil(cardToFind)) {
+            return props.cards.findIndex(card => cardToFind.id == card.id)
+        } else {
+            return -1
+        }
+    }
+
     return (
         <div className={styles.playerHand}>
             {props.cards.map((card, index) => (
                 <CardComponent
                     card={card}
                     canBeSelected={props.canSelectCards}
-                    selected={props.cards.findIndex(card => card.id == props.selectedCard?.id) == index}
+                    selected={findCardIndex(props.selectedCard) == index}
                     onClick={() => onCardSelect(index)}
                     key={card.id}
                 />

@@ -21,7 +21,7 @@ export function CardComponent(props: CardProps) {
                 (props.canBeSelected ? styles.selectable : ''),
                 (props.selected ? styles.selected : ''),
             ].join(' ')}
-            onClick={() => notNil(props.onClick) && props.onClick}
+            onClick={() => notNil(props.onClick) && props.onClick()}
         >
             <h1 className={styles.strength}>{
                 isPlacedCard(props.card)
