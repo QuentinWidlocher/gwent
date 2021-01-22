@@ -1,6 +1,7 @@
 import { sum } from "ramda"
 import React, { useEffect, useState } from "react"
 import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, EMPTY_BATTLEFIELD_ROWS, ENEMY_LINES, PLAYER_LINES } from "../../constants/constants"
+import { mapOverBattlefield } from "../../helpers/battlefield"
 import { getLineStrength, isPlacedCard } from "../../helpers/cards"
 import { notNil } from "../../helpers/helpers"
 import { BaseCard, Card, Modifier, PlacedCard } from "../../types/card"
@@ -88,20 +89,14 @@ export function BoardComponent(props: BoardProps) {
 
     // Compute how many lines are worth taking in account the card modifiers
     function computeBattlefieldPoints() {
-        let newBattlefield = { ...EMPTY_BATTLEFIELD_ROWS }
 
-        for (let lineType in BATTLEFIELD_LINE) {
-            // How hard can it be to iterate over enums huh ?
-            let line = battlefield[(Number(lineType)) as BATTLEFIELD_LINE]
-
-            if (!line) continue
-
+        let newBattlefield = mapOverBattlefield(battlefield, line => {
             // We reset all the strength to count again
-            line = line.map(card => ({ ...card, strength: card.originalStrength }))
+            let resetLine: PlacedCard[] = line.map(card => ({ ...card, strength: card.originalStrength }))
 
             // A line modifier is a card and its modifier
             // We collect all the modifiers in the line
-            let lineModifiers: [Modifier, PlacedCard][] = line
+            let lineModifiers: [Modifier, PlacedCard][] = resetLine
                 .filter(card => notNil(card.modifyPoints))
                 .map(card => [card.modifyPoints!, card])
 
@@ -110,11 +105,8 @@ export function BoardComponent(props: BoardProps) {
 
             // For each modifier, we provide its function the entire line and we get back the modified line
             // We then provide the modified line to the next modifier and so on
-            let newLine = modifiers.reduce((curLine, [m, c]) => m.effect(c, curLine), line)
-
-            // We then assign the completely modified line to the new battlefield
-            newBattlefield[(Number(lineType)) as BATTLEFIELD_LINE] = newLine
-        }
+            return modifiers.reduce((curLine, [m, c]) => m.effect(c, curLine), resetLine)
+        })
 
         setBattlefield(newBattlefield)
     }

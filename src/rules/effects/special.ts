@@ -1,4 +1,5 @@
 import { BATTLEFIELD_LINE, EMPTY_BATTLEFIELD_ROWS } from '../../constants/constants'
+import { mapOverBattlefield } from '../../helpers/battlefield'
 import { getStrength } from '../../helpers/cards'
 import { BattlefieldRows } from '../../types/aliases'
 import { SpecialEffect } from '../../types/effects'
@@ -37,17 +38,10 @@ export const scorchEffect: SpecialEffect = (_, state) => {
     console.log('scorch effect')
     let cardsStrength = Object.values(state.board).flatMap(line => line.map(getStrength))
     let maxStrength = Math.max(...cardsStrength)
-    let scorchedBoard: BattlefieldRows = EMPTY_BATTLEFIELD_ROWS
 
-    for (let lineTypeString in BATTLEFIELD_LINE) {
-        let lineType = Number(lineTypeString) as BATTLEFIELD_LINE
-        let line = state.board[lineType]
-
-        if (!line) continue
-
-        let scorchedLine = line.filter(card => getStrength(card) < maxStrength)
-        scorchedBoard[lineType] = scorchedLine
-    }
+    let scorchedBoard = mapOverBattlefield(state.board, line =>
+        line.filter(card => getStrength(card) < maxStrength)
+    )
 
     state.board = scorchedBoard
     return state

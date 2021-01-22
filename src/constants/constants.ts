@@ -1,12 +1,12 @@
 import { BattlefieldRows } from '../types/aliases'
 
 export enum BATTLEFIELD_LINE {
-    ENEMY_SIEGE,
-    ENEMY_RANGED,
-    ENEMY_MELEE,
-    PLAYER_MELEE,
-    PLAYER_RANGED,
-    PLAYER_SIEGE,
+    ENEMY_SIEGE = 'ENEMY_SIEGE',
+    ENEMY_RANGED = 'ENEMY_RANGED',
+    ENEMY_MELEE = 'ENEMY_MELEE',
+    PLAYER_MELEE = 'PLAYER_MELEE',
+    PLAYER_RANGED = 'PLAYER_RANGED',
+    PLAYER_SIEGE = 'PLAYER_SIEGE',
 }
 
 export const PLAYER_LINES = [
