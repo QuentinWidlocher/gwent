@@ -1,6 +1,6 @@
 import { range } from 'ramda'
 import { BATTLEFIELD_LINE, EMPTY_BATTLEFIELD_ROWS } from '../constants/constants'
-import { BattlefieldLine, BattlefieldRows } from '../types/aliases'
+import { BattlefieldLine, BattlefieldRows, Enumeration } from '../types/aliases'
 import { enumKeys } from './helpers'
 
 export function mapOverBattlefield(
@@ -16,3 +16,20 @@ export function mapOverBattlefield(
 
     return newBattlefield
 }
+
+// Looks like shit, doesn't work, but may be useful sometime ?
+// TODO: Delete or use properly
+// export function mapOverEnumRecord<E extends Enumeration, V extends E[keyof E]>(
+//     record: Record<keyof E, V>,
+//     enumeration: E,
+//     fn: (item: V, enumVal: keyof E, record: Record<keyof E, V>) => V
+// ) {
+//     let result = {} as E
+
+//     for (let enumKey of enumKeys(enumeration)) {
+//         let item = record[enumKey]
+//         result[enumKey] = fn(item, enumKey, record)
+//     }
+
+//     return result
+// }
