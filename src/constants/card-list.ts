@@ -1,18 +1,18 @@
 import {
-    commandersHornEffect,
-    moraleBoostEffect,
-    tightBondEffect,
-    weatherEffect,
-} from '../rules/effects/modifiers'
-import {
     clearWeatherEffect,
     decoyEffect,
     medicEffect,
     scorchEffect,
     spyEffect,
 } from '../rules/effects/special'
-import { Card, CardWithoutId } from '../types/card'
+import { CardWithoutId } from '../types/card'
 import { BATTLEFIELD_LINE, CARD_TYPE, DECK_TYPE, PLACED_CARD_TYPE } from './constants'
+import {
+    COMMANDERS_HORN_MODIFIER,
+    MORALE_BOOST_MODIFIER,
+    TIGHT_BOND_MODIFIER,
+    WEATHER_MODIFIER,
+} from './modifiers'
 
 export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
     {
@@ -20,7 +20,8 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
         title: 'Philippa Eilhart',
         type: CARD_TYPE.PLACED,
         originalStrength: 10,
-        unitTypes: [PLACED_CARD_TYPE.HERO, PLACED_CARD_TYPE.RANGED],
+        isHero: true,
+        unitTypes: [PLACED_CARD_TYPE.RANGED],
         occurence: 1,
     },
     {
@@ -28,7 +29,8 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
         title: 'Vernon Roche',
         type: CARD_TYPE.PLACED,
         originalStrength: 10,
-        unitTypes: [PLACED_CARD_TYPE.HERO, PLACED_CARD_TYPE.MELEE],
+        isHero: true,
+        unitTypes: [PLACED_CARD_TYPE.MELEE],
         occurence: 1,
     },
     {
@@ -36,7 +38,8 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
         title: 'Esterad Thyssen',
         type: CARD_TYPE.PLACED,
         originalStrength: 10,
-        unitTypes: [PLACED_CARD_TYPE.HERO, PLACED_CARD_TYPE.MELEE],
+        isHero: true,
+        unitTypes: [PLACED_CARD_TYPE.MELEE],
         occurence: 1,
     },
     {
@@ -44,7 +47,8 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
         title: 'John Natalis',
         type: CARD_TYPE.PLACED,
         originalStrength: 10,
-        unitTypes: [PLACED_CARD_TYPE.HERO, PLACED_CARD_TYPE.MELEE],
+        isHero: true,
+        unitTypes: [PLACED_CARD_TYPE.MELEE],
         occurence: 1,
     },
     {
@@ -68,10 +72,7 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
     {
         deckType: DECK_TYPE.NORTHERN_REALMS,
         title: 'Poor Fucking Infantry',
-        modifyPoints: {
-            priority: 1,
-            effect: tightBondEffect,
-        },
+        modifier: TIGHT_BOND_MODIFIER,
         type: CARD_TYPE.PLACED,
         originalStrength: 1,
         unitTypes: [PLACED_CARD_TYPE.MELEE],
@@ -80,10 +81,7 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
     {
         deckType: DECK_TYPE.NORTHERN_REALMS,
         title: 'Kaedweni Siege Expert',
-        modifyPoints: {
-            priority: 2,
-            effect: moraleBoostEffect,
-        },
+        modifier: MORALE_BOOST_MODIFIER,
         type: CARD_TYPE.PLACED,
         originalStrength: 1,
         unitTypes: [PLACED_CARD_TYPE.SIEGE],
@@ -118,10 +116,7 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
     {
         deckType: DECK_TYPE.NORTHERN_REALMS,
         title: 'Blue Stripes Commando',
-        modifyPoints: {
-            priority: 1,
-            effect: tightBondEffect,
-        },
+        modifier: TIGHT_BOND_MODIFIER,
         type: CARD_TYPE.PLACED,
         originalStrength: 4,
         unitTypes: [PLACED_CARD_TYPE.MELEE],
@@ -164,10 +159,7 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
     {
         deckType: DECK_TYPE.NORTHERN_REALMS,
         title: 'Crinfrid Reavers Dragon Hunter',
-        modifyPoints: {
-            priority: 1,
-            effect: tightBondEffect,
-        },
+        modifier: TIGHT_BOND_MODIFIER,
         type: CARD_TYPE.PLACED,
         originalStrength: 5,
         unitTypes: [PLACED_CARD_TYPE.RANGED],
@@ -233,10 +225,7 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
     {
         deckType: DECK_TYPE.NORTHERN_REALMS,
         title: 'Catapult',
-        modifyPoints: {
-            priority: 1,
-            effect: tightBondEffect,
-        },
+        modifier: TIGHT_BOND_MODIFIER,
         type: CARD_TYPE.PLACED,
         originalStrength: 8,
         unitTypes: [PLACED_CARD_TYPE.SIEGE],
@@ -247,7 +236,8 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
         title: 'Geralt of Rivia',
         type: CARD_TYPE.PLACED,
         originalStrength: 15,
-        unitTypes: [PLACED_CARD_TYPE.HERO, PLACED_CARD_TYPE.MELEE],
+        isHero: true,
+        unitTypes: [PLACED_CARD_TYPE.MELEE],
         occurence: 1,
     },
     {
@@ -255,7 +245,8 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
         title: 'Cirilla Fiona Elen Riannon',
         type: CARD_TYPE.PLACED,
         originalStrength: 15,
-        unitTypes: [PLACED_CARD_TYPE.HERO, PLACED_CARD_TYPE.MELEE],
+        isHero: true,
+        unitTypes: [PLACED_CARD_TYPE.MELEE],
         occurence: 1,
     },
     {
@@ -264,7 +255,8 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
         onCardPlayed: medicEffect,
         type: CARD_TYPE.PLACED,
         originalStrength: 7,
-        unitTypes: [PLACED_CARD_TYPE.HERO, PLACED_CARD_TYPE.RANGED],
+        isHero: true,
+        unitTypes: [PLACED_CARD_TYPE.RANGED],
         occurence: 1,
     },
     {
@@ -272,7 +264,8 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
         title: 'Triss Merigold',
         type: CARD_TYPE.PLACED,
         originalStrength: 7,
-        unitTypes: [PLACED_CARD_TYPE.HERO, PLACED_CARD_TYPE.MELEE],
+        isHero: true,
+        unitTypes: [PLACED_CARD_TYPE.MELEE],
         occurence: 1,
     },
     {
@@ -281,16 +274,14 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
         onCardPlayed: spyEffect,
         type: CARD_TYPE.PLACED,
         originalStrength: 7,
-        unitTypes: [PLACED_CARD_TYPE.HERO, PLACED_CARD_TYPE.MELEE],
+        isHero: true,
+        unitTypes: [PLACED_CARD_TYPE.MELEE],
         occurence: 1,
     },
     {
         deckType: DECK_TYPE.NEUTRAL,
         title: 'Dandelion',
-        modifyPoints: {
-            priority: 2,
-            effect: moraleBoostEffect,
-        },
+        modifier: COMMANDERS_HORN_MODIFIER,
         type: CARD_TYPE.PLACED,
         originalStrength: 2,
         unitTypes: [PLACED_CARD_TYPE.MELEE],
@@ -332,31 +323,25 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
     {
         deckType: DECK_TYPE.NEUTRAL,
         title: 'Biting Frost',
-        modifyPoints: {
-            priority: 3,
-            effect: weatherEffect,
-        },
+        modifier: WEATHER_MODIFIER,
         type: CARD_TYPE.MODIFIER,
+        authorizedLines: [BATTLEFIELD_LINE.ENEMY_MELEE, BATTLEFIELD_LINE.PLAYER_MELEE],
         occurence: 3,
     },
     {
         deckType: DECK_TYPE.NEUTRAL,
         title: 'Impenetrable Fog',
-        modifyPoints: {
-            priority: 3,
-            effect: weatherEffect,
-        },
+        modifier: WEATHER_MODIFIER,
         type: CARD_TYPE.MODIFIER,
+        authorizedLines: [BATTLEFIELD_LINE.ENEMY_RANGED, BATTLEFIELD_LINE.PLAYER_RANGED],
         occurence: 3,
     },
     {
         deckType: DECK_TYPE.NEUTRAL,
         title: 'Torrential Rain',
-        modifyPoints: {
-            priority: 3,
-            effect: weatherEffect,
-        },
+        modifier: WEATHER_MODIFIER,
         type: CARD_TYPE.MODIFIER,
+        authorizedLines: [BATTLEFIELD_LINE.ENEMY_SIEGE, BATTLEFIELD_LINE.PLAYER_SIEGE],
         occurence: 3,
     },
     {
@@ -386,10 +371,7 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
     {
         deckType: DECK_TYPE.NEUTRAL,
         title: 'Commander’s Horn',
-        modifyPoints: {
-            priority: 3,
-            effect: commandersHornEffect,
-        },
+        modifier: COMMANDERS_HORN_MODIFIER,
         type: CARD_TYPE.MODIFIER,
         occurence: 3,
     },

@@ -1,4 +1,4 @@
-import { BattlefieldRows } from './aliases'
+import { Battlefield } from './aliases'
 import { Card } from './card'
 
 export type GameState = {
@@ -8,5 +8,5 @@ export type GameState = {
     enemyDeck: Card[]
     playerDiscard: Card[]
     enemyDiscard: Card[]
-    board: BattlefieldRows
+    board: Battlefield
 }

@@ -1,7 +1,5 @@
-import { BATTLEFIELD_LINE, EMPTY_BATTLEFIELD_ROWS } from '../../constants/constants'
 import { mapOverBattlefield } from '../../helpers/battlefield'
 import { getStrength } from '../../helpers/cards'
-import { BattlefieldRows } from '../../types/aliases'
 import { SpecialEffect } from '../../types/effects'
 
 export const medicEffect: SpecialEffect = (self, state) => {

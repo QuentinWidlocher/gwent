@@ -1,10 +1,11 @@
-import { sum } from "ramda"
 import React, { useEffect, useState } from "react"
 import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, EMPTY_BATTLEFIELD_ROWS, ENEMY_LINES, PLAYER_LINES } from "../../constants/constants"
-import { mapOverBattlefield } from "../../helpers/battlefield"
-import { getLineStrength, isPlacedCard } from "../../helpers/cards"
+import { getTotalStrength } from "../../helpers/battlefield"
+import { getAuthorizedLines, isPlacedCard } from "../../helpers/cards"
+import { removeCardFromHand } from "../../helpers/hand"
 import { notNil } from "../../helpers/helpers"
-import { BaseCard, Card, Modifier, PlacedCard } from "../../types/card"
+import { computeBattlefieldPoints } from "../../rules/battlefield"
+import { BaseCard, Card, PlacedCard } from "../../types/card"
 import { GameState } from "../../types/game-state"
 import { BattlefieldComponent } from "./Battlefield/Battlefield"
 import styles from "./Board.module.css"
@@ -38,7 +39,6 @@ export function BoardComponent(props: BoardProps) {
     const [rounds, setRounds] = useState<Round[]>([])
 
     useEffect(function enemyTurn() {
-
         // The enemy only plays on his turn if he still have cards
         if (!playerTurn && enemyHand.length > 0) {
             // Select a random card from his hand
@@ -66,12 +66,11 @@ export function BoardComponent(props: BoardProps) {
 
     // Trigger each time the battlefield change
     useEffect(function computePoints() {
-        setPlayerPoints(getTotalPoints(PLAYER_LINES))
-        setEnemyPoints(getTotalPoints(ENEMY_LINES))
+        setPlayerPoints(getTotalStrength(battlefield, PLAYER_LINES))
+        setEnemyPoints(getTotalStrength(battlefield, ENEMY_LINES))
     }, [Object.values(battlefield)])
 
     useEffect(function onRoundChange() {
-
         // Count the winned rounds (excluding draws of course)
         let enemyVictories = rounds.filter(({ enemyPoints, playerPoints }) => enemyPoints > playerPoints).length
         let playerVictories = rounds.filter(({ enemyPoints, playerPoints }) => enemyPoints < playerPoints).length
@@ -87,36 +86,6 @@ export function BoardComponent(props: BoardProps) {
         }
     }, [rounds])
 
-    // Compute how many lines are worth taking in account the card modifiers
-    function computeBattlefieldPoints() {
-
-        let newBattlefield = mapOverBattlefield(battlefield, line => {
-            // We reset all the strength to count again
-            let resetLine: PlacedCard[] = line.map(card => ({ ...card, strength: card.originalStrength }))
-
-            // A line modifier is a card and its modifier
-            // We collect all the modifiers in the line
-            let lineModifiers: [Modifier, PlacedCard][] = resetLine
-                .filter(card => notNil(card.modifyPoints))
-                .map(card => [card.modifyPoints!, card])
-
-            // We sort the modifier starting from 0 to n
-            let modifiers = lineModifiers.sort(([m]) => m.priority).reverse()
-
-            // For each modifier, we provide its function the entire line and we get back the modified line
-            // We then provide the modified line to the next modifier and so on
-            return modifiers.reduce((curLine, [m, c]) => m.effect(c, curLine), resetLine)
-        })
-
-        setBattlefield(newBattlefield)
-    }
-
-    function removeCardFromHand(card: Card, hand: Card[]): Card[] {
-        let mutatedHand = [...hand]
-        mutatedHand.splice(hand.findIndex(c => c.id == card.id), 1)
-        return mutatedHand
-    }
-
     // Placing the card means putting it on the battlefield
     function placeCard(card: PlacedCard, line: BATTLEFIELD_LINE, fromPlayerHand: boolean) {
         // We make sure the card has a strength to display
@@ -127,7 +96,7 @@ export function BoardComponent(props: BoardProps) {
 
         playCard(card, fromPlayerHand, { board: rowsWithCard })
 
-        computeBattlefieldPoints()
+        setBattlefield(computeBattlefieldPoints(battlefield))
     }
 
     // Playing a card is independant from playing it on the board or activating a special card
@@ -211,11 +180,6 @@ export function BoardComponent(props: BoardProps) {
         setTimeout(() => setPlayerTurn(!playerTurn), enemyFakeThinkingTime)
     }
 
-    // Sum the sums of all lines
-    function getTotalPoints(rowList: BATTLEFIELD_LINE[]) {
-        return sum(rowList.flatMap(line => getLineStrength(battlefield[line])))
-    }
-
     function endRound() {
         if (rounds.length >= 3) {
             return
@@ -223,21 +187,6 @@ export function BoardComponent(props: BoardProps) {
 
         setRounds([...rounds, { playerPoints, enemyPoints }])
         setBattlefield(EMPTY_BATTLEFIELD_ROWS)
-    }
-
-    // Allow highlighting rows with the same rules as placing card
-    // TODO: REALLY use the same rules instead of duplicating
-    function getSelectableLines(card: PlacedCard): BATTLEFIELD_LINE[] {
-        if (notNil(card.authorizedLines)) {
-            return card.authorizedLines
-        } else {
-            return card.unitTypes
-                .flatMap(type => CARD_AUTHORIZED_LINES[type])
-                .filter(line => {
-                    let authorizedLines = playerTurn ? PLAYER_LINES : ENEMY_LINES
-                    return authorizedLines.includes(line)
-                })
-        }
     }
 
     return (
@@ -266,7 +215,7 @@ export function BoardComponent(props: BoardProps) {
 
                     selectableLines={
                         (selectedCard && isPlacedCard(selectedCard))
-                            ? getSelectableLines(selectedCard)
+                            ? getAuthorizedLines(selectedCard, playerTurn)
                             : null
                     }
                 />

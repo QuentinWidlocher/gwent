@@ -1,5 +1,5 @@
 import { BATTLEFIELD_LINE } from "../../../constants/constants"
-import { getLineStrength } from "../../../helpers/cards"
+import { getLineStrength } from "../../../helpers/battlefield"
 import { BattlefieldLine } from "../../../types/aliases"
 import { PlacedCard } from "../../../types/card"
 import styles from "./Battlefield.module.css"

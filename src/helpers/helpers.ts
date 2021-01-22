@@ -1,4 +1,4 @@
-import { isNil, range } from 'ramda'
+import { isNil } from 'ramda'
 import { Enumeration } from '../types/aliases'
 
 export function notNil<T>(o: T | undefined | null): o is T {
