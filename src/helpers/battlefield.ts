@@ -1,7 +1,7 @@
 import { sum } from 'ramda'
 import { BATTLEFIELD_LINE, EMPTY_BATTLEFIELD_ROWS } from '../constants/constants'
 import { Battlefield, BattlefieldLine } from '../types/aliases'
-import { getStrength } from './cards'
+import { cardIsPlaced, getStrength } from './cards'
 import { enumKeys } from './helpers'
 
 export function mapOverBattlefield(
@@ -33,7 +33,7 @@ export function mapBattlefield<T extends any>(
 }
 
 export function getLineStrength(line: BattlefieldLine) {
-    return sum(line.map(getStrength))
+    return sum(line.filter(cardIsPlaced).map(getStrength))
 }
 
 // Sum the sums of all lines

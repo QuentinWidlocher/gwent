@@ -1,5 +1,5 @@
 import React from "react"
-import { BATTLEFIELD_LINE } from "../../../../constants/constants"
+import { BATTLEFIELD_LINE, CARD_TYPE } from "../../../../constants/constants"
 import { cardToComponent } from "../../../../helpers/cards"
 import { notNil } from "../../../../helpers/helpers"
 import { PlacedCard } from "../../../../types/card"
@@ -15,6 +15,10 @@ export type BattlefieldLineProps = {
 }
 
 export function BattlefieldLineComponent(props: BattlefieldLineProps) {
+
+    let modifiers = props.cards.filter(card => card.type == CARD_TYPE.MODIFIER)
+    let cards = props.cards.filter(card => card.type == CARD_TYPE.PLACED)
+
     return (
         <div
             className={[
@@ -25,8 +29,11 @@ export function BattlefieldLineComponent(props: BattlefieldLineProps) {
             onClick={() => notNil(props.onClick) && props.onClick()}
         >
             <span className={styles.strength}>{props.totalStrength}</span>
+            <div className={styles.modifiers}>
+                {modifiers.map(cardToComponent)}
+            </div>
             <div className={styles.cards}>
-                {props.cards.map(cardToComponent)}
+                {cards.map(cardToComponent)}
             </div>
         </div>
     )

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react"
 import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, EMPTY_BATTLEFIELD_ROWS, ENEMY_LINES, PLAYER_LINES } from "../../constants/constants"
 import { getTotalStrength } from "../../helpers/battlefield"
-import { getAuthorizedLines, isPlacedCard } from "../../helpers/cards"
+import { getAuthorizedLines, canBePlaced } from "../../helpers/cards"
 import { removeCardFromHand } from "../../helpers/hand"
 import { notNil } from "../../helpers/helpers"
 import { computeBattlefieldPoints } from "../../rules/battlefield"
+import { Battlefield } from "../../types/aliases"
 import { BaseCard, Card, PlacedCard } from "../../types/card"
 import { GameState } from "../../types/game-state"
 import { BattlefieldComponent } from "./Battlefield/Battlefield"
@@ -45,7 +46,7 @@ export function BoardComponent(props: BoardProps) {
             let enemySelectedCard = enemyHand[Math.floor(Math.random() * enemyHand.length)]
 
             // Place it on the battlefield or play the effect
-            if (isPlacedCard(enemySelectedCard)) {
+            if (canBePlaced(enemySelectedCard)) {
                 // Find all line where the card can naturally go
                 // TODO: allow the enemy to play spies
                 let availableLines = enemySelectedCard.unitTypes
@@ -91,10 +92,10 @@ export function BoardComponent(props: BoardProps) {
         // We make sure the card has a strength to display
         card.strength = card.originalStrength
 
-        let rowsWithCard = { ...battlefield }
+        let rowsWithCard: Battlefield = { ...battlefield }
         rowsWithCard[line].push(card)
 
-        playCard(card, fromPlayerHand, { board: rowsWithCard })
+        playCard(card, fromPlayerHand, { battlefield: rowsWithCard })
 
         setBattlefield(computeBattlefieldPoints(battlefield))
     }
@@ -112,7 +113,7 @@ export function BoardComponent(props: BoardProps) {
             enemyDeck: [],
             enemyDiscard: [],
             enemyHand: (fromPlayerHand ? enemyHand : handWithoutCard),
-            board: battlefield,
+            battlefield,
             ...alreadyModifiedGameState
         }
 
@@ -129,7 +130,7 @@ export function BoardComponent(props: BoardProps) {
         // setEnemyDeck(newGameState.enemyDeck)
         // setEnemyDiscard(newGameState.enemyDiscard)
         setEnemyHand(newGameState.enemyHand)
-        setBattlefield(newGameState.board)
+        setBattlefield(newGameState.battlefield)
 
         endTurn()
     }
@@ -167,7 +168,7 @@ export function BoardComponent(props: BoardProps) {
             return
         }
 
-        if (notNil(lineType) && isPlacedCard(selectedCard)) {
+        if (notNil(lineType) && canBePlaced(selectedCard)) {
             battlefieldLineSelect(lineType, selectedCard)
         } else {
             battlefieldAllSelect(selectedCard)
@@ -210,11 +211,11 @@ export function BoardComponent(props: BoardProps) {
                     onLineClick={battlefieldSelect}
                     onBoardClick={battlefieldSelect}
 
-                    linesCanBeSelected={notNil(selectedCard) && isPlacedCard(selectedCard)}
-                    battlefieldCanBeSelected={notNil(selectedCard) && !isPlacedCard(selectedCard)}
+                    linesCanBeSelected={notNil(selectedCard) && canBePlaced(selectedCard)}
+                    battlefieldCanBeSelected={notNil(selectedCard) && !canBePlaced(selectedCard)}
 
                     selectableLines={
-                        (selectedCard && isPlacedCard(selectedCard))
+                        (selectedCard && canBePlaced(selectedCard))
                             ? getAuthorizedLines(selectedCard, playerTurn)
                             : null
                     }

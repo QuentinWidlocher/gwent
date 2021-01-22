@@ -8,5 +8,5 @@ export type GameState = {
     enemyDeck: Card[]
     playerDiscard: Card[]
     enemyDiscard: Card[]
-    board: Battlefield
+    battlefield: Battlefield
 }

@@ -1,7 +1,9 @@
 import { mapOverBattlefield } from '../../helpers/battlefield'
+import { getStrength } from '../../helpers/cards'
+import { notNil } from '../../helpers/helpers'
 import { ModifierEffect } from '../../types/effects'
 
-export const moraleBoostEffect: ModifierEffect = (self, linePlacedOn, battlefield) => {
+export const moraleBoostModifier: ModifierEffect = (self, linePlacedOn, battlefield) => {
     console.log('morale boost effect')
     return mapOverBattlefield(battlefield, (line, lineType) => {
         if (lineType == linePlacedOn) {
@@ -21,7 +23,7 @@ export const moraleBoostEffect: ModifierEffect = (self, linePlacedOn, battlefiel
     })
 }
 
-export const tightBondEffect: ModifierEffect = (self, linePlacedOn, battlefield) => {
+export const tightBondModifier: ModifierEffect = (self, linePlacedOn, battlefield) => {
     console.log('tight bond effect')
     return mapOverBattlefield(battlefield, (line, lineType) => {
         if (lineType == linePlacedOn) {
@@ -44,12 +46,24 @@ export const tightBondEffect: ModifierEffect = (self, linePlacedOn, battlefield)
     })
 }
 
-export const weatherEffect: ModifierEffect = (self, linePlacedOn, battlefield) => {
+export const weatherModifier: ModifierEffect = (self, _, battlefield) => {
     console.log('weather effect')
-    return battlefield
+    return mapOverBattlefield(battlefield, (line, lineType) => {
+        if (notNil(self.authorizedLines) && self.authorizedLines.includes(lineType)) {
+            return line.map(card => ({ ...card, strength: 1 }))
+        } else {
+            return line
+        }
+    })
 }
 
-export const commandersHornEffect: ModifierEffect = (self, linePlacedOn, battlefield) => {
+export const commandersHornModifier: ModifierEffect = (self, linePlacedOn, battlefield) => {
     console.log('horn effect')
-    return battlefield
+    return mapOverBattlefield(battlefield, (line, lineType) => {
+        if (lineType == linePlacedOn) {
+            return line.map(card => ({ ...card, strength: getStrength(card) * 2 }))
+        } else {
+            return line
+        }
+    })
 }

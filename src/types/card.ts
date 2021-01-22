@@ -13,7 +13,6 @@ export type BaseCard = {
     id: string
     deckType: DECK_TYPE
     onCardPlayed?: (self: Card, state: GameState) => GameState
-    modifier?: Modifier
 }
 
 export type PlacedCard = BaseCard & {
@@ -23,6 +22,7 @@ export type PlacedCard = BaseCard & {
     strength?: number
     canBePlacedOverACard?: boolean
     authorizedLines?: BATTLEFIELD_LINE[]
+    modifier?: Modifier
 }
 
 export type Card = BaseCard | PlacedCard

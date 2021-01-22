@@ -1,6 +1,8 @@
+import { isNil } from 'ramda'
 import { mapOverBattlefield } from '../../helpers/battlefield'
-import { getStrength } from '../../helpers/cards'
+import { cardIsModifier, cardIsPlaced, getStrength } from '../../helpers/cards'
 import { SpecialEffect } from '../../types/effects'
+import { weatherModifier } from './modifiers'
 
 export const medicEffect: SpecialEffect = (self, state) => {
     console.log('medic effect')
@@ -9,6 +11,17 @@ export const medicEffect: SpecialEffect = (self, state) => {
 
 export const clearWeatherEffect: SpecialEffect = (self, state) => {
     console.log('clear weather effect')
+
+    let battlefieldWithoutWeather = mapOverBattlefield(state.battlefield, line =>
+        line.filter(card => isNil(card.modifier) || card.modifier.effect != weatherModifier)
+    )
+
+    return { ...state, battlefield: battlefieldWithoutWeather }
+}
+
+// TODO: duplicate the card to the other side
+export const weatherEffect: SpecialEffect = (self, state) => {
+    console.log('weather effect')
     return state
 }
 
@@ -34,13 +47,13 @@ export const decoyEffect: SpecialEffect = (self, state) => {
 }
 export const scorchEffect: SpecialEffect = (_, state) => {
     console.log('scorch effect')
-    let cardsStrength = Object.values(state.board).flatMap(line => line.map(getStrength))
+    let cardsStrength = Object.values(state.battlefield).flatMap(line => line.map(getStrength))
     let maxStrength = Math.max(...cardsStrength)
 
-    let scorchedBoard = mapOverBattlefield(state.board, line =>
+    let scorchedBoard = mapOverBattlefield(state.battlefield, line =>
         line.filter(card => getStrength(card) < maxStrength)
     )
 
-    state.board = scorchedBoard
+    state.battlefield = scorchedBoard
     return state
 }
