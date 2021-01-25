@@ -1,12 +1,8 @@
+@value theme: "../../../theme.module.css";
+@value (card-width, card-height) from theme;
 .card {
-    --card-width: 4.5rem;
-    --card-height: 6rem;
-    --selection-color: lightblue;
-}
-
-.card {
-    height: var(--card-height);
-    width: var(--card-width);
+    height: card-height;
+    width: card-width;
     border: solid black 2px;
     border-radius: 0.5rem;
     display: flex;
@@ -17,7 +13,7 @@
 }
 
 .selected {
-    background-color: var(--selection-color);
+    background-color: lightblue;
 }
 
 .selectable {

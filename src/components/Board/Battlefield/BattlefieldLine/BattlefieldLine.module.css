@@ -1,3 +1,5 @@
+@value theme: "../../../../theme.module.css";
+@value (card-width, card-height) from theme;
 .line {
     display: flex;
     flex-direction: row;
@@ -17,8 +19,7 @@
 }
 
 .modifiers {
-    margin-right: auto;
-    flex-shrink: 1;
+    width: card-width;
 }
 
 .cards {
