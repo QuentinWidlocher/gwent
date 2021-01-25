@@ -1,6 +1,6 @@
 import { isNil } from 'ramda'
 import { mapOverBattlefield } from '../../helpers/battlefield'
-import { canBePlaced, cardIsModifier, cardIsPlaced, getStrength } from '../../helpers/cards'
+import { canBePlaced, getStrength } from '../../helpers/cards'
 import { SpecialEffect } from '../../types/effects'
 import { weatherModifier } from './modifiers'
 
@@ -9,7 +9,7 @@ export const medicEffect: SpecialEffect = (self, state) => {
     return state
 }
 
-export const clearWeatherEffect: SpecialEffect = (self, state) => {
+export const clearWeatherEffect: SpecialEffect = (_, state) => {
     console.log('clear weather effect')
 
     let battlefield = mapOverBattlefield(state.battlefield, line =>

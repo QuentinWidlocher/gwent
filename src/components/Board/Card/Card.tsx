@@ -2,7 +2,7 @@
 import { PLACED_CARD_TYPE_NAMES } from "../../../constants/constants"
 import { getStrength, canBePlaced } from "../../../helpers/cards"
 import { notNil } from "../../../helpers/helpers"
-import { Card } from "../../../types/card"
+import { Card, PlacedCard } from "../../../types/card"
 import styles from "./Card.module.css"
 
 export interface CardProps {
@@ -14,6 +14,21 @@ export interface CardProps {
 
 export function CardComponent(props: CardProps) {
 
+    let cardStrength = null
+    let cardTypes = null
+    let cardHasBonus = false
+    let cardHasMalus = false
+
+    if (canBePlaced(props.card)) {
+        cardStrength = getStrength(props.card)
+        cardTypes = props.card.unitTypes.map(type => PLACED_CARD_TYPE_NAMES[type]).join('/')
+
+        let cardOriginalStrength = props.card.originalStrength
+
+        cardHasBonus = cardStrength > cardOriginalStrength
+        cardHasMalus = cardStrength < cardOriginalStrength
+    }
+
     return (
         <div
             className={[
@@ -23,17 +38,13 @@ export function CardComponent(props: CardProps) {
             ].join(' ')}
             onClick={() => notNil(props.onClick) && props.onClick()}
         >
-            <h1 className={styles.strength}>{
-                canBePlaced(props.card)
-                    ? getStrength(props.card)
-                    : null
-            }</h1>
+            <h1 className={[
+                styles.strength,
+                (cardHasBonus ? styles.bonus : ''),
+                (cardHasMalus ? styles.malus : ''),
+            ].join(' ')}>{ cardStrength }</h1>
             <h1 className={styles.title}>{props.card.title}</h1>
-            <h2 className={styles.type}>{
-                canBePlaced(props.card)
-                    ? props.card.unitTypes.map(type => PLACED_CARD_TYPE_NAMES[type]).join('/')
-                    : null
-            }</h2>
+            <h2 className={styles.type}>{ cardTypes }</h2>
         </div>
     )
 }

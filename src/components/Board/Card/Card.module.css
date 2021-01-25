@@ -35,6 +35,16 @@
     margin: 0;
 }
 
+.strength.bonus {
+    color: green;
+    border-color: green;
+}
+
+.strength.malus {
+    color: red;
+    border-color: red;
+}
+
 .title {
     font-size: smaller;
     text-align: center;
