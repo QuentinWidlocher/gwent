@@ -1,7 +1,7 @@
 import { sum } from 'ramda'
 import { BATTLEFIELD_LINE, EMPTY_BATTLEFIELD_ROWS } from '../constants/constants'
 import { Battlefield, BattlefieldLine } from '../types/aliases'
-import { cardIsPlaced, getStrength } from './cards'
+import { cardIsPlaced, getStrength, lineFromEnemyPerspective } from './cards'
 import { enumKeys } from './helpers'
 
 export function mapOverBattlefield(
@@ -30,6 +30,16 @@ export function mapBattlefield<T extends any>(
     }
 
     return result
+}
+
+export function battlefieldFromEnemyPerspective(battlefield: Battlefield): Battlefield {
+    let newBattlefield = { ...EMPTY_BATTLEFIELD_ROWS }
+
+    for (let lineType of enumKeys(BATTLEFIELD_LINE)) {
+        newBattlefield[lineFromEnemyPerspective(lineType as BATTLEFIELD_LINE)] = battlefield[lineType]
+    }
+
+    return newBattlefield
 }
 
 export function getLineStrength(line: BattlefieldLine) {

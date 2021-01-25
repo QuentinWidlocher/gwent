@@ -10,7 +10,7 @@ function mixDeckWithNeutral(type: DECK_TYPE) {
     return [...DECKS[DECK_TYPE.NEUTRAL], ...DECKS[type]]
 }
 
-export function BoardPage(props: BoardPageProps = {}) {
+export function BoardPage(_: BoardPageProps = {}) {
 
     const [playerDeck] = useState(shuffled(mixDeckWithNeutral(DECK_TYPE.NORTHERN_REALMS)))
     const [enemyDeck] = useState(shuffled(mixDeckWithNeutral(DECK_TYPE.NORTHERN_REALMS)))

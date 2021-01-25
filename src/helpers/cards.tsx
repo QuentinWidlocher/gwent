@@ -1,4 +1,4 @@
-import { isNil } from "ramda"
+import { equals, isNil } from "ramda"
 import React from "react"
 import { CardComponent } from "../components/Board/Card/Card"
 import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, CARD_TYPE, ENEMY_LINES, PLAYER_LINES } from "../constants/constants"
@@ -21,8 +21,8 @@ export function cardIsPlaced(card: Card): card is PlacedCard {
         && notNil((card as PlacedCard).originalStrength)
 }
 
-export function cardToComponent(card: PlacedCard) {
-    return (<CardComponent card={card} key={card.id} />)
+export function cardToComponent(card: PlacedCard, index: number) {
+    return (<CardComponent card={card} key={`${card.id}-#${index}`} />)
 }
 
 export function getStrength(card: PlacedCard) {
@@ -44,6 +44,32 @@ export function getAuthorizedLines(card: PlacedCard, playerTurn: boolean): BATTL
     }
 }
 
-export function notHero(card: Card): boolean {
-    return cardIsPlaced(card) && (isNil(card.isHero) || card.isHero)
+export function notHero(card: Card): card is PlacedCard {
+    return cardIsPlaced(card) && !card.isHero
+}
+
+export function isHero(card: Card): boolean {
+    return !notHero(card)
+}
+
+export function lineFromEnemyPerspective(lineFromPlayerPerspective: BATTLEFIELD_LINE): BATTLEFIELD_LINE {
+    let fromPlayerPerspective = [
+        BATTLEFIELD_LINE.ENEMY_SIEGE,
+        BATTLEFIELD_LINE.ENEMY_RANGED,
+        BATTLEFIELD_LINE.ENEMY_MELEE,
+        BATTLEFIELD_LINE.PLAYER_MELEE,
+        BATTLEFIELD_LINE.PLAYER_RANGED,
+        BATTLEFIELD_LINE.PLAYER_SIEGE,
+    ]
+
+    let fromEnemyPerspective = [
+        BATTLEFIELD_LINE.PLAYER_SIEGE,
+        BATTLEFIELD_LINE.PLAYER_RANGED,
+        BATTLEFIELD_LINE.PLAYER_MELEE,
+        BATTLEFIELD_LINE.ENEMY_MELEE,
+        BATTLEFIELD_LINE.ENEMY_RANGED,
+        BATTLEFIELD_LINE.ENEMY_SIEGE,
+    ]
+
+    return fromEnemyPerspective[fromPlayerPerspective.findIndex(equals(lineFromPlayerPerspective))]
 }

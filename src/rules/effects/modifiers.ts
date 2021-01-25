@@ -4,7 +4,7 @@ import { notNil } from '../../helpers/helpers'
 import { ModifierEffect } from '../../types/effects'
 
 export const moraleBoostModifier: ModifierEffect = (self, linePlacedOn, battlefield) => {
-    console.log('morale boost modifier')
+    console.log('Morale Boost modifier')
     return mapOverBattlefield(battlefield, (line, lineType) => {
         if (lineType == linePlacedOn) {
             return line.map(card => {
@@ -24,10 +24,10 @@ export const moraleBoostModifier: ModifierEffect = (self, linePlacedOn, battlefi
 }
 
 export const tightBondModifier: ModifierEffect = (self, linePlacedOn, battlefield) => {
-    console.log('tight bond modifier')
+    console.log('Tight Bond modifier')
     return mapOverBattlefield(battlefield, (line, lineType) => {
         if (lineType == linePlacedOn) {
-            return line.filter(notHero).map(card => {
+            return line.map(card => {
                 if (card.id == self.id && notHero(card)) {
                     let howManyIdenticalCards = line.filter(c => c.title == self.title).length
                     return {
@@ -47,10 +47,10 @@ export const tightBondModifier: ModifierEffect = (self, linePlacedOn, battlefiel
 }
 
 export const weatherModifier: ModifierEffect = (self, _, battlefield) => {
-    console.log('weather modifier')
+    console.log('Weather modifier')
     return mapOverBattlefield(battlefield, (line, lineType) => {
         if (notNil(self.authorizedLines) && self.authorizedLines.includes(lineType)) {
-            return line.map(card => (notHero(card) ? card : { ...card, strength: 1 }))
+            return line.map(card => (notHero(card) ? { ...card, strength: 1 } : card))
         } else {
             return line
         }
@@ -58,10 +58,10 @@ export const weatherModifier: ModifierEffect = (self, _, battlefield) => {
 }
 
 export const commandersHornModifier: ModifierEffect = (_, linePlacedOn, battlefield) => {
-    console.log('horn modifier')
+    console.log('Horn modifier')
     return mapOverBattlefield(battlefield, (line, lineType) => {
         if (lineType == linePlacedOn) {
-            return line.map(card => (notHero(card) ? card : { ...card, strength: getStrength(card) * 2 }))
+            return line.map(card => (notHero(card) ? { ...card, strength: getStrength(card) * 2 } : card))
         } else {
             return line
         }

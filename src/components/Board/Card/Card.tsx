@@ -2,7 +2,7 @@
 import { PLACED_CARD_TYPE_NAMES } from "../../../constants/constants"
 import { getStrength, canBePlaced, cardIsPlaced } from "../../../helpers/cards"
 import { notNil } from "../../../helpers/helpers"
-import { Card, PlacedCard } from "../../../types/card"
+import { Card } from "../../../types/card"
 import styles from "./Card.module.css"
 
 export interface CardProps {
