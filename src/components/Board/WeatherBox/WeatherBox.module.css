@@ -1,13 +1,12 @@
 @value theme: "../../../theme.module.css";
 @value (card-width, card-height, board-color-dark, card-margin) from theme;
 
+/**/
+
 .weatherBox {
-    min-height: card-height;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
+    composes: line from '../Battlefield/BattlefieldLine/BattlefieldLine.module.css';
     background-color: board-color-dark;
-    margin: 0 5rem
+    margin: 0 2rem;
 }
 
 .weatherBox * {

@@ -1,6 +1,6 @@
 
 import { PLACED_CARD_TYPE_NAMES } from "../../../constants/constants"
-import { getStrength, canBePlaced } from "../../../helpers/cards"
+import { getStrength, canBePlaced, cardIsPlaced } from "../../../helpers/cards"
 import { notNil } from "../../../helpers/helpers"
 import { Card, PlacedCard } from "../../../types/card"
 import styles from "./Card.module.css"
@@ -29,22 +29,30 @@ export function CardComponent(props: CardProps) {
         cardHasMalus = cardStrength < cardOriginalStrength
     }
 
+    let strength = (
+        <h2 className={[
+            styles.strength,
+            (cardHasBonus ? styles.bonus : ''),
+            (cardHasMalus ? styles.malus : ''),
+        ].join(' ')}>
+            {cardStrength}
+        </h2>
+    )
+
     return (
         <div
             className={[
                 (styles.card),
                 (props.canBeSelected ? styles.selectable : ''),
                 (props.selected ? styles.selected : ''),
+                (cardIsPlaced(props.card) && props.card.isHero ? styles.hero : ''),
             ].join(' ')}
             onClick={() => notNil(props.onClick) && props.onClick()}
         >
-            <h1 className={[
-                styles.strength,
-                (cardHasBonus ? styles.bonus : ''),
-                (cardHasMalus ? styles.malus : ''),
-            ].join(' ')}>{ cardStrength }</h1>
+            {cardIsPlaced(props.card) && strength}
+
             <h1 className={styles.title}>{props.card.title}</h1>
-            <h2 className={styles.type}>{ cardTypes }</h2>
+            <h2 className={styles.type}>{cardTypes}</h2>
         </div>
     )
 }

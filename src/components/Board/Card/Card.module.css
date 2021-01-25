@@ -1,5 +1,5 @@
 @value theme: "../../../theme.module.css";
-@value (card-width, card-height) from theme;
+@value (card-width, card-height, card-hero-color) from theme;
 .card {
     height: card-height;
     width: card-width;
@@ -49,10 +49,19 @@
     font-size: smaller;
     text-align: center;
     margin: 0;
+    width: 95%;
+    overflow: hidden;
+    text-overflow: '-';
 }
 
 .type {
     font-size: x-small;
     font-style: italic;
     margin: 0;
+}
+
+.hero .strength,
+.hero .title {
+    border-color: card-hero-color;
+    color: card-hero-color;
 }

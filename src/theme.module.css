@@ -1,6 +1,7 @@
 @value card-width: 4.5rem;
 @value card-height: 6rem;
+@value card-margin: 0 0.25rem;
 @value board-color-base: #8b5a2b;
 @value board-color-dark: #724923;
 @value board-color-light: #b97739;
-@value card-margin: 0 0.25rem;
+@value card-hero-color: dodgerblue;
