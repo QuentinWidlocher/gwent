@@ -1,25 +1,29 @@
 @value theme: "../../../../theme.module.css";
-@value (card-width, card-height) from theme;
+@value (card-width, card-height, board-color-base, board-color-dark, board-color-light, card-margin) from theme;
 .line {
     display: flex;
     flex-direction: row;
     align-items: center;
-    background-color: #8b5a2b;
-    border: solid 2px #724923;
+    background-color: board-color-base;
+    border: solid 2px board-color-dark;
     height: 100%;
     box-sizing: border-box;
 }
 
 .dark {
-    background-color: #724923;
+    background-color: board-color-dark;
 }
 
 .canBeSelected:hover {
-    background-color: #b97739;
+    background-color: board-color-light;
 }
 
 .modifiers {
+    height: card-height;
     width: card-width;
+    margin-left: 1rem;
+    background-color: board-color-dark;
+    border: solid 2px board-color-base;
 }
 
 .cards {
@@ -30,6 +34,10 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
+}
+
+.cards * {
+    margin: card-margin;
 }
 
 .strength {

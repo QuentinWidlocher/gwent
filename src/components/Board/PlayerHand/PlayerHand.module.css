@@ -1,4 +1,13 @@
+@value theme: "../../../theme.module.css";
+@value (card-height, card-margin) from theme;
+
 .playerHand {
     composes: line from '../Battlefield/BattlefieldLine/BattlefieldLine.module.css';
-    min-height: 6rem;
+    justify-content: center;
+    min-height: card-height;
+    padding: 1rem;
+}
+
+.playerHand * {
+    margin: card-margin;
 }
