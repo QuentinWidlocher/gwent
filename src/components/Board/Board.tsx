@@ -100,8 +100,6 @@ export function BoardComponent(props: BoardProps) {
         rowsWithCard[line].push(card)
 
         playCard(card, fromPlayerHand, { battlefield: rowsWithCard })
-
-        setBattlefield(computeBattlefieldPoints(battlefield))
     }
 
     // Playing a card is independant from playing it on the board or activating a special card
@@ -127,8 +125,6 @@ export function BoardComponent(props: BoardProps) {
             newGameState = card.onCardPlayed(card, newGameState);
         }
 
-        console.debug(newGameState)
-
         // We then update the component with this new game state
         // TODO: implement all the components
         // setPlayerDeck(newGameState.playerDeck)
@@ -141,6 +137,8 @@ export function BoardComponent(props: BoardProps) {
         setBattlefield(newGameState.battlefield)
 
         console.info(playerTurn ? 'Player' : 'Opponent', 'played', card.title)
+
+        setBattlefield(computeBattlefieldPoints(newGameState.battlefield))
 
         endTurn()
     }
