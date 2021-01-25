@@ -1,4 +1,4 @@
-import React from "react"
+import React, { FC } from "react"
 import { Round } from "../Board"
 import styles from "./Scores.module.css"
 
@@ -8,7 +8,7 @@ export type ScoresProps = {
     rounds: Round[]
 }
 
-export function ScoresComponent(props: ScoresProps) {
+export const ScoresComponent: FC<ScoresProps> = (props) => {
 
     let isEnemyWinning = props.enemyPoints > props.playerPoints
     let isPlayerWinning = props.enemyPoints < props.playerPoints
@@ -24,6 +24,9 @@ export function ScoresComponent(props: ScoresProps) {
                 <span>
                     {Array(enemyVictories).fill('•').join('')}
                 </span>
+            </div>
+            <div className={styles.weathers}>
+                {props.children}
             </div>
             <div className={styles.tab}>
                 <span className={isPlayerWinning ? styles.winning : ''}>

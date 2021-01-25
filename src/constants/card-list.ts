@@ -4,6 +4,7 @@ import {
     medicEffect,
     scorchEffect,
     spyEffect,
+    weatherEffect,
 } from '../rules/effects/special'
 import { CardWithoutId } from '../types/card'
 import { BATTLEFIELD_LINE, CARD_TYPE, DECK_TYPE, PLACED_CARD_TYPE } from './constants'
@@ -324,6 +325,7 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
         deckType: DECK_TYPE.NEUTRAL,
         title: 'Biting Frost',
         modifier: WEATHER_MODIFIER,
+        onCardPlayed: weatherEffect,
         type: CARD_TYPE.MODIFIER,
         originalStrength: 0,
         unitTypes: [PLACED_CARD_TYPE.MELEE],
@@ -334,6 +336,7 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
         deckType: DECK_TYPE.NEUTRAL,
         title: 'Impenetrable Fog',
         modifier: WEATHER_MODIFIER,
+        onCardPlayed: weatherEffect,
         type: CARD_TYPE.MODIFIER,
         originalStrength: 0,
         unitTypes: [PLACED_CARD_TYPE.RANGED],
@@ -344,6 +347,7 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
         deckType: DECK_TYPE.NEUTRAL,
         title: 'Torrential Rain',
         modifier: WEATHER_MODIFIER,
+        onCardPlayed: weatherEffect,
         type: CARD_TYPE.MODIFIER,
         originalStrength: 0,
         unitTypes: [PLACED_CARD_TYPE.SIEGE],

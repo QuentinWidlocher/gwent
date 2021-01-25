@@ -1,5 +1,5 @@
 import { Battlefield } from './aliases'
-import { Card } from './card'
+import { Card, PlacedCard } from './card'
 
 export type GameState = {
     playerHand: Card[]
@@ -8,5 +8,6 @@ export type GameState = {
     enemyDeck: Card[]
     playerDiscard: Card[]
     enemyDiscard: Card[]
+    weatherCards: PlacedCard[]
     battlefield: Battlefield
 }

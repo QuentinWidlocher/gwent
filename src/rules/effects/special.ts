@@ -1,6 +1,6 @@
 import { isNil } from 'ramda'
 import { mapOverBattlefield } from '../../helpers/battlefield'
-import { cardIsModifier, cardIsPlaced, getStrength } from '../../helpers/cards'
+import { canBePlaced, cardIsModifier, cardIsPlaced, getStrength } from '../../helpers/cards'
 import { SpecialEffect } from '../../types/effects'
 import { weatherModifier } from './modifiers'
 
@@ -12,17 +12,22 @@ export const medicEffect: SpecialEffect = (self, state) => {
 export const clearWeatherEffect: SpecialEffect = (self, state) => {
     console.log('clear weather effect')
 
-    let battlefieldWithoutWeather = mapOverBattlefield(state.battlefield, line =>
+    let battlefield = mapOverBattlefield(state.battlefield, line =>
         line.filter(card => isNil(card.modifier) || card.modifier.effect != weatherModifier)
     )
 
-    return { ...state, battlefield: battlefieldWithoutWeather }
+    return { ...state, battlefield, weatherCards: [] }
 }
 
 // TODO: duplicate the card to the other side
 export const weatherEffect: SpecialEffect = (self, state) => {
     console.log('weather effect')
-    return state
+    if (canBePlaced(self)) {
+        return { ...state, weatherCards: [...state.weatherCards, self] }
+    } else {
+        console.debug('ntm')
+        return state
+    }
 }
 
 export const musterEffect: SpecialEffect = (self, state) => {

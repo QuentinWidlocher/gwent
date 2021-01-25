@@ -1,5 +1,6 @@
 import React from "react"
 import { BATTLEFIELD_LINE, CARD_TYPE } from "../../../../constants/constants"
+import { WEATHER_MODIFIER } from "../../../../constants/modifiers"
 import { cardToComponent } from "../../../../helpers/cards"
 import { notNil } from "../../../../helpers/helpers"
 import { PlacedCard } from "../../../../types/card"
@@ -16,7 +17,7 @@ export type BattlefieldLineProps = {
 
 export function BattlefieldLineComponent(props: BattlefieldLineProps) {
 
-    let modifiers = props.cards.filter(card => card.type == CARD_TYPE.MODIFIER)
+    let modifiers = props.cards.filter(card => (card.type == CARD_TYPE.MODIFIER) && (card.modifier != WEATHER_MODIFIER))
     let cards = props.cards.filter(card => card.type == CARD_TYPE.PLACED)
 
     return (

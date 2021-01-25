@@ -4,7 +4,7 @@ import { notNil } from '../../helpers/helpers'
 import { ModifierEffect } from '../../types/effects'
 
 export const moraleBoostModifier: ModifierEffect = (self, linePlacedOn, battlefield) => {
-    console.log('morale boost effect')
+    console.log('morale boost modifier')
     return mapOverBattlefield(battlefield, (line, lineType) => {
         if (lineType == linePlacedOn) {
             return line.map(card => {
@@ -24,7 +24,7 @@ export const moraleBoostModifier: ModifierEffect = (self, linePlacedOn, battlefi
 }
 
 export const tightBondModifier: ModifierEffect = (self, linePlacedOn, battlefield) => {
-    console.log('tight bond effect')
+    console.log('tight bond modifier')
     return mapOverBattlefield(battlefield, (line, lineType) => {
         if (lineType == linePlacedOn) {
             return line.map(card => {
@@ -47,7 +47,7 @@ export const tightBondModifier: ModifierEffect = (self, linePlacedOn, battlefiel
 }
 
 export const weatherModifier: ModifierEffect = (self, _, battlefield) => {
-    console.log('weather effect')
+    console.log('weather modifier')
     return mapOverBattlefield(battlefield, (line, lineType) => {
         if (notNil(self.authorizedLines) && self.authorizedLines.includes(lineType)) {
             return line.map(card => ({ ...card, strength: 1 }))
@@ -58,7 +58,7 @@ export const weatherModifier: ModifierEffect = (self, _, battlefield) => {
 }
 
 export const commandersHornModifier: ModifierEffect = (self, linePlacedOn, battlefield) => {
-    console.log('horn effect')
+    console.log('horn modifier')
     return mapOverBattlefield(battlefield, (line, lineType) => {
         if (lineType == linePlacedOn) {
             return line.map(card => ({ ...card, strength: getStrength(card) * 2 }))

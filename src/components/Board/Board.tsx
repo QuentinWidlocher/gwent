@@ -12,6 +12,7 @@ import { BattlefieldComponent } from "./Battlefield/Battlefield"
 import styles from "./Board.module.css"
 import { PlayerHandComponent } from "./PlayerHand/PlayerHand"
 import { ScoresComponent } from "./Scores/Scores"
+import { WeatherBoxComponent } from "./WeatherBox/WeatherBox"
 
 export type BoardProps = {
     playerDeck: Card[]
@@ -27,17 +28,20 @@ const enemyFakeThinkingTime = 500
 export function BoardComponent(props: BoardProps) {
 
     const [selectedCard, setSelectedCard] = useState<Card | null>(null)
+
     const [battlefield, setBattlefield] = useState(EMPTY_BATTLEFIELD_ROWS)
+
+    const [weatherCards, setWeatherCards] = useState<PlacedCard[]>([])
 
     const [playerHand, setPlayerHand] = useState<Card[]>(props.playerDeck.slice(0, 10))
     const [enemyHand, setEnemyHand] = useState<Card[]>(props.enemyDeck.slice(0, 10))
-
-    const [playerTurn, setPlayerTurn] = useState<boolean>(Math.random() >= 0.5)
 
     const [playerPoints, setPlayerPoints] = useState(0)
     const [enemyPoints, setEnemyPoints] = useState(0)
 
     const [rounds, setRounds] = useState<Round[]>([])
+
+    const [playerTurn, setPlayerTurn] = useState<boolean>(Math.random() >= 0.5)
 
     useEffect(function enemyTurn() {
         // The enemy only plays on his turn if he still have cards
@@ -113,6 +117,7 @@ export function BoardComponent(props: BoardProps) {
             enemyDeck: [],
             enemyDiscard: [],
             enemyHand: (fromPlayerHand ? enemyHand : handWithoutCard),
+            weatherCards,
             battlefield,
             ...alreadyModifiedGameState
         }
@@ -122,6 +127,8 @@ export function BoardComponent(props: BoardProps) {
             newGameState = card.onCardPlayed(card, newGameState);
         }
 
+        console.debug(newGameState)
+
         // We then update the component with this new game state
         // TODO: implement all the components
         // setPlayerDeck(newGameState.playerDeck)
@@ -130,7 +137,10 @@ export function BoardComponent(props: BoardProps) {
         // setEnemyDeck(newGameState.enemyDeck)
         // setEnemyDiscard(newGameState.enemyDiscard)
         setEnemyHand(newGameState.enemyHand)
+        setWeatherCards(newGameState.weatherCards)
         setBattlefield(newGameState.battlefield)
+
+        console.info(playerTurn ? 'Player' : 'Opponent', 'played', card.title)
 
         endTurn()
     }
@@ -197,7 +207,11 @@ export function BoardComponent(props: BoardProps) {
                     enemyPoints={enemyPoints}
                     playerPoints={playerPoints}
                     rounds={rounds}
-                />
+                >
+                    <WeatherBoxComponent
+                        cards={weatherCards}
+                    />
+                </ScoresComponent>
             </div>
             <div className={styles.battlefield}>
                 <BattlefieldComponent
