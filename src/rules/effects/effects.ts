@@ -51,6 +51,8 @@ export const decoyEffect: SpecialEffect = (self, state) => {
     console.log('decoy effect')
     return state
 }
+
+// TODO: send to discard instead
 export const scorchEffect: SpecialEffect = (_, state) => {
     console.log('Scorch effect')
     let cardsStrength = Object.values(state.battlefield).flatMap(line =>

@@ -117,11 +117,11 @@ export function BoardComponent(props: BoardProps) {
         let rowsWithCard: Battlefield = { ...battlefield }
         rowsWithCard[line].push(card)
 
-        playCard(card, fromPlayerHand, { battlefield: rowsWithCard })
+        playCard(card, fromPlayerHand, { battlefield: rowsWithCard }, line)
     }
 
     // Playing a card is independant from playing it on the board or activating a special card
-    function playCard(card: Card, fromPlayerPov: boolean, alreadyModifiedGameState?: Partial<GameState>) {
+    function playCard(card: Card, fromPlayerPov: boolean, alreadyModifiedGameState?: Partial<GameState>, linePlacedOn?: BATTLEFIELD_LINE) {
 
         let handWithoutCard = removeCardFromHand(card, fromPlayerPov ? playerHand : enemyHand)
 
@@ -152,6 +152,11 @@ export function BoardComponent(props: BoardProps) {
                 battlefield,
                 ...alreadyModifiedGameState
             }
+        }
+
+        if (notNil(card.canBePlayed) && !card.canBePlayed(card, newGameState, linePlacedOn)) {
+            console.log('Card', card.title, 'could not be played')
+            return
         }
 
         // We update the game state if the card has an effect

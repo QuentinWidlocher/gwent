@@ -1,6 +1,5 @@
 import { BATTLEFIELD_LINE, CARD_TYPE, DECK_TYPE, PLACED_CARD_TYPE } from '../constants/constants'
-import { ModifierEffect } from './effects'
-import { GameState } from './game-state'
+import { ConditionEffect, ModifierEffect, SpecialEffect } from './effects'
 
 export type Modifier = {
     priority: number
@@ -12,7 +11,8 @@ export type BaseCard = {
     title: string
     id: string
     deckType: DECK_TYPE
-    onCardPlayed?: (self: Card, state: GameState) => GameState
+    onCardPlayed?: SpecialEffect
+    canBePlayed?: ConditionEffect
 }
 
 export type PlacedCard = BaseCard & {

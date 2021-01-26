@@ -1,3 +1,4 @@
+import { modifierCondition, weatherCondition } from '../rules/effects/conditions'
 import {
     clearWeatherEffect,
     decoyEffect,
@@ -5,7 +6,7 @@ import {
     scorchEffect,
     spyEffect,
     weatherEffect,
-} from '../rules/effects/special'
+} from '../rules/effects/effects'
 import { CardWithoutId } from '../types/card'
 import { BATTLEFIELD_LINE, CARD_TYPE, DECK_TYPE, PLACED_CARD_TYPE } from './constants'
 import {
@@ -326,6 +327,7 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
         title: 'Biting Frost',
         modifier: WEATHER_MODIFIER,
         onCardPlayed: weatherEffect,
+        canBePlayed: weatherCondition,
         type: CARD_TYPE.MODIFIER,
         originalStrength: 0,
         unitTypes: [PLACED_CARD_TYPE.MELEE],
@@ -337,6 +339,7 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
         title: 'Impenetrable Fog',
         modifier: WEATHER_MODIFIER,
         onCardPlayed: weatherEffect,
+        canBePlayed: weatherCondition,
         type: CARD_TYPE.MODIFIER,
         originalStrength: 0,
         unitTypes: [PLACED_CARD_TYPE.RANGED],
@@ -348,6 +351,7 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
         title: 'Torrential Rain',
         modifier: WEATHER_MODIFIER,
         onCardPlayed: weatherEffect,
+        canBePlayed: weatherCondition,
         type: CARD_TYPE.MODIFIER,
         originalStrength: 0,
         unitTypes: [PLACED_CARD_TYPE.SIEGE],
@@ -382,6 +386,7 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
         deckType: DECK_TYPE.NEUTRAL,
         title: 'Commander’s Horn',
         modifier: COMMANDERS_HORN_MODIFIER,
+        canBePlayed: modifierCondition,
         type: CARD_TYPE.MODIFIER,
         originalStrength: 0,
         unitTypes: [PLACED_CARD_TYPE.MELEE, PLACED_CARD_TYPE.RANGED, PLACED_CARD_TYPE.SIEGE],
