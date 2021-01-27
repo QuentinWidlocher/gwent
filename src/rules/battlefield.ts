@@ -3,6 +3,7 @@ import { mapBattlefield, mapOverBattlefield } from '../helpers/battlefield'
 import { notNil } from '../helpers/helpers'
 import { Battlefield } from '../types/aliases'
 import { Modifier, PlacedCard } from '../types/card'
+import { GameState } from '../types/game-state'
 
 // Compute how many lines are worth taking in account the card modifiers
 export function computeBattlefieldPoints(battlefield: Battlefield): Battlefield {

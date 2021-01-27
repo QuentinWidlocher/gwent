@@ -67,7 +67,7 @@ export function BoardComponent(props: BoardProps) {
                 // Select a random line
                 let enemySelectedLine = availableLines[Math.floor(Math.random() * availableLines.length)]
 
-                placeCard(enemySelectedCard, enemySelectedLine, false)
+                playCard(enemySelectedCard, false, )
             } else {
                 playCard(enemySelectedCard, false)
             }
@@ -109,27 +109,16 @@ export function BoardComponent(props: BoardProps) {
         })
     })
 
-    // Placing the card means putting it on the battlefield
-    function placeCard(card: PlacedCard, line: BATTLEFIELD_LINE, fromPlayerHand: boolean = true) {
-        // We make sure the card has a strength to display
-        card.strength = card.originalStrength
-
-        let rowsWithCard: Battlefield = { ...battlefield }
-        rowsWithCard[line].push(card)
-
-        playCard(card, fromPlayerHand, { battlefield: rowsWithCard }, line)
-    }
-
     // Playing a card is independant from playing it on the board or activating a special card
-    function playCard(card: Card, fromPlayerPov: boolean, alreadyModifiedGameState?: Partial<GameState>, linePlacedOn?: BATTLEFIELD_LINE) {
+    function playCard(card: Card, fromPlayerPov: boolean = true, linePlacedOn?: BATTLEFIELD_LINE) {
+
+        let gameState: GameState | null = null
 
         let handWithoutCard = removeCardFromHand(card, fromPlayerPov ? playerHand : enemyHand)
 
         // We make a snapshot of the game right now (having placed the card from the hand to the battlefield if necessary)
-        let newGameState = alreadyModifiedGameState as GameState
-
         if (fromPlayerPov) {
-            newGameState = {
+            gameState = {
                 playerDeck,
                 playerDiscard: [],
                 playerHand: handWithoutCard,
@@ -138,10 +127,9 @@ export function BoardComponent(props: BoardProps) {
                 enemyHand,
                 weatherCards,
                 battlefield,
-                ...alreadyModifiedGameState
             }
         } else {
-            newGameState = {
+            gameState = {
                 playerDeck: enemyDeck,
                 playerDiscard: [],
                 playerHand: handWithoutCard,
@@ -150,44 +138,50 @@ export function BoardComponent(props: BoardProps) {
                 enemyHand: playerHand,
                 weatherCards,
                 battlefield,
-                ...alreadyModifiedGameState
             }
         }
 
-        if (notNil(card.canBePlayed) && !card.canBePlayed(card, newGameState, linePlacedOn)) {
+        if (notNil(card.canBePlayed) && !card.canBePlayed(card, gameState, linePlacedOn)) {
             console.log('Card', card.title, 'could not be played')
             return
         }
+        
+        if (notNil(linePlacedOn) && canBePlaced(card)) {
+            let rowsWithCard: Battlefield = { ...battlefield }
+            rowsWithCard[linePlacedOn].push(card)
+            gameState.battlefield = rowsWithCard
+        }
+        
 
         // We update the game state if the card has an effect
         if (notNil(card.onCardPlayed)) {
-            newGameState = card.onCardPlayed(card, newGameState);
+            gameState = card.onCardPlayed(card, gameState);
         }
 
         // We then update the component with this new game state
         // TODO: implement all the components
         if (fromPlayerPov) {
-            setPlayerDeck(newGameState.playerDeck)
-            // setPlayerDiscard(newGameState.playerDiscard)
-            setPlayerHand(newGameState.playerHand)
-            setEnemyDeck(newGameState.enemyDeck)
-            // setEnemyDiscard(newGameState.enemyDiscard)
-            setEnemyHand(newGameState.enemyHand)
+            setPlayerDeck(gameState.playerDeck)
+            // setPlayerDiscard(gameState.playerDiscard)
+            setPlayerHand(gameState.playerHand)
+            setEnemyDeck(gameState.enemyDeck)
+            // setEnemyDiscard(gameState.enemyDiscard)
+            setEnemyHand(gameState.enemyHand)
         } else {
-            setPlayerDeck(newGameState.enemyDeck)
-            // setPlayerDiscard(newGameState.playerDiscard)
-            setPlayerHand(newGameState.enemyHand)
-            setEnemyDeck(newGameState.playerDeck)
-            // setEnemyDiscard(newGameState.enemyDiscard)
-            setEnemyHand(newGameState.playerHand)
+            setPlayerDeck(gameState.enemyDeck)
+            // setPlayerDiscard(gameState.playerDiscard)
+            setPlayerHand(gameState.enemyHand)
+            setEnemyDeck(gameState.playerDeck)
+            // setEnemyDiscard(gameState.enemyDiscard)
+            setEnemyHand(gameState.playerHand)
         }
 
-        setWeatherCards(newGameState.weatherCards)
-        setBattlefield(newGameState.battlefield)
+        setWeatherCards(gameState.weatherCards)
+        setBattlefield(gameState.battlefield)
 
         console.info(playerTurn ? 'Player' : 'Opponent', 'played', card.title)
 
-        setBattlefield(computeBattlefieldPoints(newGameState.battlefield))
+        setBattlefield(computeBattlefieldPoints(gameState.battlefield))
 
         endTurn()
     }
@@ -211,12 +205,12 @@ export function BoardComponent(props: BoardProps) {
             return
         }
 
-        placeCard(card, lineType, true)
+        playCard(card, true, lineType)
     }
 
     // When the player clicks on the battlefield to play a special card
     function battlefieldAllSelect(card: BaseCard) {
-        playCard(card, true)
+        playCard(card)
     }
 
     function battlefieldSelect(lineType?: BATTLEFIELD_LINE) {
