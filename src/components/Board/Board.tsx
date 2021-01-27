@@ -1,6 +1,7 @@
+import { clone } from "ramda"
 import React, { useEffect, useState } from "react"
 import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, EMPTY_BATTLEFIELD_ROWS, ENEMY_LINES, PLAYER_LINES } from "../../constants/constants"
-import { getTotalStrength, swapPov } from "../../helpers/battlefield"
+import { getTotalStrength } from "../../helpers/battlefield"
 import { canBePlaced, getAuthorizedLines, lineFromEnemyPerspective } from "../../helpers/cards"
 import { notNil } from "../../helpers/helpers"
 import { computeBattlefieldPoints, getStateAfterPlayingCard } from "../../rules/battlefield"
@@ -27,7 +28,7 @@ export function BoardComponent(props: BoardProps) {
 
     const [selectedCard, setSelectedCard] = useState<Card | null>(null)
 
-    const [battlefield, setBattlefield] = useState(EMPTY_BATTLEFIELD_ROWS)
+    const [battlefield, setBattlefield] = useState(clone(EMPTY_BATTLEFIELD_ROWS))
 
     const [weatherCards, setWeatherCards] = useState<PlacedCard[]>([])
 
@@ -84,6 +85,7 @@ export function BoardComponent(props: BoardProps) {
     }, [Object.values(battlefield)])
 
     useEffect(function onRoundChange() {
+
         // Count the winned rounds (excluding draws of course)
         let enemyVictories = rounds.filter(({ enemyPoints, playerPoints }) => enemyPoints > playerPoints).length
         let playerVictories = rounds.filter(({ enemyPoints, playerPoints }) => enemyPoints < playerPoints).length
@@ -186,9 +188,10 @@ export function BoardComponent(props: BoardProps) {
         if (rounds.length >= 3) {
             return
         }
+        console.debug('EMPTY_BATTLEFIELD_ROWS', EMPTY_BATTLEFIELD_ROWS);
 
         setRounds([...rounds, { playerPoints, enemyPoints }])
-        setBattlefield(EMPTY_BATTLEFIELD_ROWS)
+        setBattlefield(clone(EMPTY_BATTLEFIELD_ROWS))
         setWeatherCards([])
     }
 

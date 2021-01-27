@@ -1,4 +1,4 @@
-import { sum } from 'ramda'
+import { clone, sum } from 'ramda'
 import { BATTLEFIELD_LINE, EMPTY_BATTLEFIELD_ROWS } from '../constants/constants'
 import { Battlefield, BattlefieldLine } from '../types/aliases'
 import { GameState } from '../types/game-state'
@@ -9,7 +9,7 @@ export function mapOverBattlefield(
     battlefield: Battlefield,
     fn: (line: BattlefieldLine, lineType: BATTLEFIELD_LINE, battlefield: Battlefield) => BattlefieldLine
 ) {
-    let newBattlefield = { ...EMPTY_BATTLEFIELD_ROWS }
+    let newBattlefield = clone(EMPTY_BATTLEFIELD_ROWS)
 
     for (let lineType of enumKeys(BATTLEFIELD_LINE)) {
         let line = battlefield[lineType]
@@ -34,7 +34,7 @@ export function mapBattlefield<T extends any>(
 }
 
 export function battlefieldFromEnemyPerspective(battlefield: Battlefield): Battlefield {
-    let newBattlefield = { ...EMPTY_BATTLEFIELD_ROWS }
+    let newBattlefield = clone(EMPTY_BATTLEFIELD_ROWS)
 
     for (let lineType of enumKeys(BATTLEFIELD_LINE)) {
         newBattlefield[lineFromEnemyPerspective(lineType as BATTLEFIELD_LINE)] = battlefield[lineType]
@@ -53,9 +53,18 @@ export function getTotalStrength(battlefield: Battlefield, linesType: BATTLEFIEL
 }
 
 export function swapPov(gameState: GameState): GameState {
-    let swappedGameState = { ...gameState};
-    [swappedGameState.playerDeck, swappedGameState.enemyDeck] = [swappedGameState.enemyDeck, swappedGameState.playerDeck];
-    [swappedGameState.playerDiscard, swappedGameState.enemyDiscard] = [swappedGameState.enemyDiscard, swappedGameState.playerDiscard];
-    [swappedGameState.playerHand, swappedGameState.enemyHand] = [swappedGameState.enemyHand, swappedGameState.playerHand];
+    let swappedGameState = { ...gameState }
+    ;[swappedGameState.playerDeck, swappedGameState.enemyDeck] = [
+        swappedGameState.enemyDeck,
+        swappedGameState.playerDeck,
+    ]
+    ;[swappedGameState.playerDiscard, swappedGameState.enemyDiscard] = [
+        swappedGameState.enemyDiscard,
+        swappedGameState.playerDiscard,
+    ]
+    ;[swappedGameState.playerHand, swappedGameState.enemyHand] = [
+        swappedGameState.enemyHand,
+        swappedGameState.playerHand,
+    ]
     return swappedGameState
 }
