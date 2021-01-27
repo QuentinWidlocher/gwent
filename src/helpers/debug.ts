@@ -11,8 +11,11 @@ export function findCards(cardsName: string[]): Card[] {
 }
 
 function fuzzyMatch(str: string, pattern: string): boolean {
-    pattern = pattern.split('').reduce(function (a, b) {
-        return a + '.*' + b
-    })
-    return new RegExp(pattern).test(str)
+    pattern = pattern
+        .toLocaleLowerCase()
+        .split('')
+        .reduce(function (a, b) {
+            return a + '.*' + b
+        })
+    return new RegExp(pattern).test(str.toLocaleLowerCase())
 }

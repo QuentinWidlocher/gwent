@@ -21,15 +21,24 @@ export function computeBattlefieldPoints(battlefield: Battlefield): Battlefield 
     let sortedModifiers = modifiers.sort(([m]) => m.priority).reverse()
 
     let resetBattlefied = mapOverBattlefield(battlefield, line =>
-        line.map(card => ({ ...card, strength: card.originalStrength, appliedModifier: null }))
+        line.map(card => ({
+            ...card,
+            strength: card.originalStrength,
+            appliedModifiers: [],
+        }))
     )
 
     // For each modifier, we provide its function the entire battlefield and the line where the card was placed
     // and we get back the modified battlefield. We then provide this modified battlefield to the next modifier
     // and so on... The result is the battlefield modified by each modifier
     let newBattlefield = sortedModifiers.reduce(
-        (curField, [m, c, l]) => m.effect(c, l, curField),
+        (curField, [modifier, card, line]) => modifier.effect(card, line, curField),
         resetBattlefied
+    )
+
+    console.debug(
+        'newBattlefield[BATTLEFIELD_LINE.PLAYER_MELEE]',
+        newBattlefield[BATTLEFIELD_LINE.PLAYER_MELEE]
     )
 
     return newBattlefield
@@ -43,8 +52,6 @@ export function getStateAfterPlayingCard(
     linePlacedOn?: BATTLEFIELD_LINE
 ): [Boolean, GameState] {
     let gameState: GameState = fromPlayerPov ? currentGameState : swapPov(currentGameState)
-
-    console.debug(gameState)
 
     let handWithoutCard = removeCardFromHand(
         card,

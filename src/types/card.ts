@@ -3,6 +3,7 @@ import { ConditionEffect, ModifierEffect, SpecialEffect } from './effects'
 
 export type Modifier = {
     id: string
+    positive: boolean
     priority: number
     effect: ModifierEffect
 }
@@ -12,7 +13,7 @@ export type BaseCard = {
     title: string
     id: string
     deckType: DECK_TYPE
-    appliedModifier?: Modifier | null
+    appliedModifiers?: Modifier[]
     onCardPlayed?: SpecialEffect
     canBePlayed?: ConditionEffect
 }

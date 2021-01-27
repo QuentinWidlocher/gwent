@@ -25,8 +25,10 @@ export function CardComponent(props: CardProps) {
 
         let cardOriginalStrength = props.card.originalStrength
 
-        cardHasBonus = cardStrength > cardOriginalStrength
-        cardHasMalus = cardStrength < cardOriginalStrength
+        let cardModifiers = (props.card.appliedModifiers ?? [])
+
+        cardHasBonus = cardModifiers.length > 0 && (cardModifiers.every(m => m.positive) || cardStrength > cardOriginalStrength)
+        cardHasMalus = cardModifiers.length > 0 && (cardModifiers.every(m => !m.positive) || cardStrength < cardOriginalStrength)
     }
 
     let strength = (
@@ -51,7 +53,7 @@ export function CardComponent(props: CardProps) {
         >
             {cardIsPlaced(props.card) && strength}
 
-            <h1 className={styles.title}>{props.card.title}</h1>
+            <h1 className={styles.title}>{(props.card.appliedModifiers ?? []).length > 0 && '*'} {props.card.title}</h1>
             <h2 className={styles.type}>{cardTypes}</h2>
         </div>
     )
