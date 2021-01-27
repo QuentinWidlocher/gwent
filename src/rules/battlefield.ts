@@ -1,8 +1,10 @@
 import { BATTLEFIELD_LINE } from '../constants/constants'
-import { mapBattlefield, mapOverBattlefield } from '../helpers/battlefield'
+import { mapBattlefield, mapOverBattlefield, swapPov } from '../helpers/battlefield'
+import { canBePlaced } from '../helpers/cards'
+import { removeCardFromHand } from '../helpers/hand'
 import { notNil } from '../helpers/helpers'
 import { Battlefield } from '../types/aliases'
-import { Modifier, PlacedCard } from '../types/card'
+import { Card, Modifier, PlacedCard } from '../types/card'
 import { GameState } from '../types/game-state'
 
 // Compute how many lines are worth taking in account the card modifiers
@@ -31,4 +33,34 @@ export function computeBattlefieldPoints(battlefield: Battlefield): Battlefield 
     )
 
     return newBattlefield
+}
+
+// Playing a card is independant from playing it on the board or activating a special card
+export function getStateAfterPlayingCard(card: Card, currentGameState: GameState, fromPlayerPov: boolean = true, linePlacedOn?: BATTLEFIELD_LINE): [Boolean, GameState] {
+
+    let gameState: GameState = fromPlayerPov ? currentGameState : swapPov(currentGameState)
+
+    console.debug(gameState)
+
+    let handWithoutCard = removeCardFromHand(card, fromPlayerPov ? currentGameState.playerHand : currentGameState.enemyHand)
+
+    gameState.playerHand = handWithoutCard
+
+    if (notNil(card.canBePlayed) && !card.canBePlayed(card, gameState, linePlacedOn)) {
+        return [false, currentGameState]
+    }
+
+    if (notNil(linePlacedOn) && canBePlaced(card)) {
+        let rowsWithCard: Battlefield = { ...currentGameState.battlefield }
+        rowsWithCard[linePlacedOn].push(card)
+        gameState.battlefield = rowsWithCard
+    }
+
+
+    // We update the game state if the card has an effect
+    if (notNil(card.onCardPlayed)) {
+        gameState = card.onCardPlayed(card, gameState);
+    }
+
+    return [true, fromPlayerPov ? gameState : swapPov(gameState)]
 }
