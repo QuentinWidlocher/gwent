@@ -21,7 +21,7 @@ export function computeBattlefieldPoints(battlefield: Battlefield): Battlefield 
     let sortedModifiers = modifiers.sort(([m]) => m.priority).reverse()
 
     let resetBattlefied = mapOverBattlefield(battlefield, line =>
-        line.map(card => ({ ...card, strength: card.originalStrength }))
+        line.map(card => ({ ...card, strength: card.originalStrength, appliedModifier: null }))
     )
 
     // For each modifier, we provide its function the entire battlefield and the line where the card was placed
@@ -36,13 +36,20 @@ export function computeBattlefieldPoints(battlefield: Battlefield): Battlefield 
 }
 
 // Playing a card is independant from playing it on the board or activating a special card
-export function getStateAfterPlayingCard(card: Card, currentGameState: GameState, fromPlayerPov: boolean = true, linePlacedOn?: BATTLEFIELD_LINE): [Boolean, GameState] {
-
+export function getStateAfterPlayingCard(
+    card: Card,
+    currentGameState: GameState,
+    fromPlayerPov: boolean = true,
+    linePlacedOn?: BATTLEFIELD_LINE
+): [Boolean, GameState] {
     let gameState: GameState = fromPlayerPov ? currentGameState : swapPov(currentGameState)
 
     console.debug(gameState)
 
-    let handWithoutCard = removeCardFromHand(card, fromPlayerPov ? currentGameState.playerHand : currentGameState.enemyHand)
+    let handWithoutCard = removeCardFromHand(
+        card,
+        fromPlayerPov ? currentGameState.playerHand : currentGameState.enemyHand
+    )
 
     gameState.playerHand = handWithoutCard
 
@@ -56,10 +63,9 @@ export function getStateAfterPlayingCard(card: Card, currentGameState: GameState
         gameState.battlefield = rowsWithCard
     }
 
-
     // We update the game state if the card has an effect
     if (notNil(card.onCardPlayed)) {
-        gameState = card.onCardPlayed(card, gameState);
+        gameState = card.onCardPlayed(card, gameState)
     }
 
     return [true, fromPlayerPov ? gameState : swapPov(gameState)]

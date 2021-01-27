@@ -2,6 +2,7 @@ import { BATTLEFIELD_LINE, CARD_TYPE, DECK_TYPE, PLACED_CARD_TYPE } from '../con
 import { ConditionEffect, ModifierEffect, SpecialEffect } from './effects'
 
 export type Modifier = {
+    id: string
     priority: number
     effect: ModifierEffect
 }
@@ -11,6 +12,7 @@ export type BaseCard = {
     title: string
     id: string
     deckType: DECK_TYPE
+    appliedModifier?: Modifier | null
     onCardPlayed?: SpecialEffect
     canBePlayed?: ConditionEffect
 }

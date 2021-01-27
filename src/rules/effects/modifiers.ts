@@ -1,5 +1,7 @@
+import { isNil } from 'ramda'
+import { COMMANDERS_HORN_MODIFIER } from '../../constants/modifiers'
 import { mapOverBattlefield } from '../../helpers/battlefield'
-import { getStrength, notHero } from '../../helpers/cards'
+import { getStrength, isHero, notHero } from '../../helpers/cards'
 import { notNil } from '../../helpers/helpers'
 import { ModifierEffect } from '../../types/effects'
 
@@ -61,7 +63,12 @@ export const commandersHornModifier: ModifierEffect = (_, linePlacedOn, battlefi
     console.log('Horn modifier')
     return mapOverBattlefield(battlefield, (line, lineType) => {
         if (lineType == linePlacedOn) {
-            return line.map(card => (notHero(card) ? { ...card, strength: getStrength(card) * 2 } : card))
+            return line.map(card =>
+                !isHero(card) &&
+                (isNil(card.appliedModifier) || card.appliedModifier.id != COMMANDERS_HORN_MODIFIER.id)
+                    ? { ...card, strength: getStrength(card) * 2, appliedModifier: COMMANDERS_HORN_MODIFIER }
+                    : card
+            )
         } else {
             return line
         }
