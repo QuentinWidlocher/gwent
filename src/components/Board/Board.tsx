@@ -127,9 +127,9 @@ export function BoardComponent(props: BoardProps) {
     }
 
     // Playing a card is independant from playing it on the board or activating a special card
-    function playCard(card: Card, fromPlayerPov: boolean = true, linePlacedOn?: BATTLEFIELD_LINE) {
+    function playCard(card: Card, fromPlayerPov: boolean = true, linePlacedOn?: BATTLEFIELD_LINE, cardPlacedOn?: PlacedCard) {
 
-        let [couldPlay, newGameState] = getStateAfterPlayingCard(card, getGameState(), fromPlayerPov, linePlacedOn);
+        let [couldPlay, newGameState] = getStateAfterPlayingCard(card, getGameState(), fromPlayerPov, linePlacedOn, cardPlacedOn);
 
         if (!couldPlay) {
             console.info('Card', card.title, 'could not be played')
@@ -144,7 +144,7 @@ export function BoardComponent(props: BoardProps) {
     }
 
     // When the player clicks on a line
-    function battlefieldLineSelect(lineType: BATTLEFIELD_LINE, card: PlacedCard) {
+    function battlefieldLineSelect(lineType: BATTLEFIELD_LINE, card: PlacedCard, selectedCard?: PlacedCard) {
         let authorizedLines: BATTLEFIELD_LINE[] = []
 
         // If a card has authorizedLines, they override the defaults authorized line
@@ -162,17 +162,21 @@ export function BoardComponent(props: BoardProps) {
             return
         }
 
-        playCard(card, true, lineType)
+        playCard(card, true, lineType, selectedCard)
     }
 
-    function battlefieldSelect(lineType?: BATTLEFIELD_LINE) {
+    function battlefieldSelect(lineType?: BATTLEFIELD_LINE, card?: PlacedCard) {
         // You can't play if you haven't selected a card
         if (!selectedCard) {
             return
         }
 
         if (notNil(lineType) && canBePlaced(selectedCard)) {
-            battlefieldLineSelect(lineType, selectedCard)
+            if (notNil(card) && notNil(selectedCard.onCardPlayed)) {                
+                battlefieldLineSelect(lineType, selectedCard, card)
+            } else {
+                battlefieldLineSelect(lineType, selectedCard)
+            }
         } else {
             playCard(selectedCard)
         }
@@ -217,9 +221,11 @@ export function BoardComponent(props: BoardProps) {
                     playerRangedLine={battlefield[BATTLEFIELD_LINE.PLAYER_RANGED]}
                     playerSiegeLine={battlefield[BATTLEFIELD_LINE.PLAYER_SIEGE]}
 
+                    onCardClick={battlefieldSelect}
                     onLineClick={battlefieldSelect}
                     onBoardClick={battlefieldSelect}
 
+                    cardsCanBeSelected={notNil(selectedCard) && canBePlaced(selectedCard) && !!selectedCard.canBePlacedOverACard}
                     linesCanBeSelected={notNil(selectedCard) && canBePlaced(selectedCard)}
                     battlefieldCanBeSelected={notNil(selectedCard) && !canBePlaced(selectedCard)}
 

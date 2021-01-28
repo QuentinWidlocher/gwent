@@ -1,5 +1,6 @@
 import { BATTLEFIELD_LINE } from "../../../constants/constants"
 import { getLineStrength } from "../../../helpers/battlefield"
+import { notNil } from "../../../helpers/helpers"
 import { BattlefieldLine } from "../../../types/aliases"
 import { PlacedCard } from "../../../types/card"
 import styles from "./Battlefield.module.css"
@@ -13,9 +14,11 @@ export type BattlefieldProps = {
     playerRangedLine: BattlefieldLine,
     playerSiegeLine: BattlefieldLine,
 
+    onCardClick: (lineType: BATTLEFIELD_LINE, card: PlacedCard) => void,
     onLineClick: (lineType: BATTLEFIELD_LINE) => void,
     onBoardClick: () => void,
 
+    cardsCanBeSelected: boolean,
     linesCanBeSelected: boolean,
     battlefieldCanBeSelected: boolean,
 
@@ -39,6 +42,15 @@ export function BattlefieldComponent(props: BattlefieldProps) {
         return props.linesCanBeSelected && (props.selectableLines?.includes(lineType) ?? false)
     }
 
+    function onLineClick(lineType: BATTLEFIELD_LINE, card?: PlacedCard) {
+        console.debug(card)
+        if (notNil(card)) {
+            props.onCardClick(lineType, card)
+        } else {
+            props.onLineClick(lineType)
+        }
+    }
+
     let lines = linesConfig.map((line, i) => (
         <div className={line.style} key={`battlefield_line_${i}`}>
             <BattlefieldLineComponent
@@ -46,8 +58,9 @@ export function BattlefieldComponent(props: BattlefieldProps) {
                 type={line.type}
                 totalStrength={getLineStrength(line.cards)}
                 canBeSelected={line.canBeSelected}
+                selectCard={props.cardsCanBeSelected}
                 dark={i % 2 == 0}
-                onClick={() => props.onLineClick(line.type)}
+                onClick={(card) => onLineClick(line.type, card)}
             />
         </div>
     ))

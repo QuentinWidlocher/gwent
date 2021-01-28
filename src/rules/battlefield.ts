@@ -49,7 +49,8 @@ export function getStateAfterPlayingCard(
     card: Card,
     currentGameState: GameState,
     fromPlayerPov: boolean = true,
-    linePlacedOn?: BATTLEFIELD_LINE
+    linePlacedOn?: BATTLEFIELD_LINE,
+    cardPlacedOn?: PlacedCard
 ): [Boolean, GameState] {
     let gameState: GameState = fromPlayerPov ? currentGameState : swapPov(currentGameState)
 
@@ -72,7 +73,7 @@ export function getStateAfterPlayingCard(
 
     // We update the game state if the card has an effect
     if (notNil(card.onCardPlayed)) {
-        gameState = card.onCardPlayed(card, gameState)
+        gameState = card.onCardPlayed(card, gameState, linePlacedOn, cardPlacedOn)
     }
 
     return [true, fromPlayerPov ? gameState : swapPov(gameState)]

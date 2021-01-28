@@ -1,11 +1,14 @@
 import { isNil } from 'ramda'
 import { mapOverBattlefield } from '../../helpers/battlefield'
-import { canBePlaced, getStrength, isHero, notHero } from '../../helpers/cards'
+import { canBePlaced, cardIsPlaced, getStrength, isHero, notHero } from '../../helpers/cards'
+import { notNil } from '../../helpers/helpers'
+import { Card, PlacedCard } from '../../types/card'
 import { SpecialEffect } from '../../types/effects'
 import { weatherModifier } from './modifiers'
 
 export const medicEffect: SpecialEffect = (self, state) => {
     console.log('medic effect')
+
     return state
 }
 
@@ -47,9 +50,20 @@ export const spyEffect: SpecialEffect = (_, state) => {
     return newState
 }
 
-export const decoyEffect: SpecialEffect = (self, state) => {
-    console.log('decoy effect')
-    return state
+export const decoyEffect: SpecialEffect = (_, state, linePlacedOn, cardPlacedOn) => {
+    console.log('Decoy effect')
+    if (notNil(linePlacedOn) && notNil(cardPlacedOn)) {
+        let battlefieldWithSwappedCards = mapOverBattlefield(state.battlefield, (line, lineType) => {
+            if (lineType == linePlacedOn) {
+                return line.filter(card => card.id != cardPlacedOn.id)
+            } else {
+                return line
+            }
+        })
+        return { ...state, playerHand: [...state.playerHand, cardPlacedOn], battlefield: battlefieldWithSwappedCards }
+    } else {
+        return state
+    }
 }
 
 // TODO: send to discard instead

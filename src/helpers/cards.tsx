@@ -1,4 +1,4 @@
-import { equals, isNil } from "ramda"
+import { equals } from "ramda"
 import React from "react"
 import { CardComponent } from "../components/Board/Card/Card"
 import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, CARD_TYPE, ENEMY_LINES, PLAYER_LINES } from "../constants/constants"

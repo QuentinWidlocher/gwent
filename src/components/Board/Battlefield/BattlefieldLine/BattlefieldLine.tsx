@@ -4,6 +4,7 @@ import { WEATHER_MODIFIER } from "../../../../constants/modifiers"
 import { cardToComponent } from "../../../../helpers/cards"
 import { notNil } from "../../../../helpers/helpers"
 import { PlacedCard } from "../../../../types/card"
+import { CardComponent } from "../../Card/Card"
 import styles from "./BattlefieldLine.module.css"
 
 export type BattlefieldLineProps = {
@@ -11,8 +12,9 @@ export type BattlefieldLineProps = {
     type: BATTLEFIELD_LINE,
     totalStrength: number
     dark?: boolean,
+    selectCard?: boolean,
     canBeSelected?: boolean,
-    onClick?: () => void,
+    onClick?: (card?: PlacedCard) => void,
 }
 
 export function BattlefieldLineComponent(props: BattlefieldLineProps) {
@@ -25,16 +27,23 @@ export function BattlefieldLineComponent(props: BattlefieldLineProps) {
             className={[
                 (styles.line),
                 (props.dark ? styles.dark : ''),
-                (props.canBeSelected ? styles.canBeSelected : ''),
+                (props.canBeSelected && !props.selectCard ? styles.canBeSelected : ''),
             ].join(' ')}
-            onClick={() => notNil(props.onClick) && props.onClick()}
+            onClick={() => !props.selectCard && notNil(props.onClick) && props.onClick()}
         >
             <span className={styles.strength}>{props.totalStrength}</span>
             <div className={styles.modifiers}>
                 {modifiers.map(cardToComponent)}
             </div>
             <div className={styles.cards}>
-                {cards.map(cardToComponent)}
+                {cards.map((card, index) => (
+                    <CardComponent 
+                        card={card} 
+                        key={`${card.id}-#${index}`} 
+                        canBeSelected={props.selectCard}
+                        onClick={() => (props.selectCard && props.onClick) && props.onClick(card)}
+                    />
+                ))}
             </div>
         </div>
     )
