@@ -4,7 +4,7 @@ import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, EMPTY_BATTLEFIELD_ROWS, ENEMY_
 import { getTotalStrength } from "../../helpers/battlefield"
 import { canBePlaced, getAuthorizedLines, lineFromEnemyPerspective } from "../../helpers/cards"
 import { notNil } from "../../helpers/helpers"
-import { computeBattlefieldPoints, getStateAfterPlayingCard } from "../../rules/battlefield"
+import { autoPlay, computeBattlefieldPoints, getStateAfterPlayingCard } from "../../rules/battlefield"
 import { Card, PlacedCard } from "../../types/card"
 import { GameState } from "../../types/game-state"
 import { BattlefieldComponent } from "./Battlefield/Battlefield"
@@ -51,30 +51,8 @@ export function BoardComponent(props: BoardProps) {
     useEffect(function enemyTurn() {
         // The enemy only plays on his turn if he still have cards
         if (!playerTurn && enemyHand.length > 0) {
-            // Select a random card from his hand
-            let enemySelectedCard = enemyHand[Math.floor(Math.random() * enemyHand.length)]
-
-            // Place it on the battlefield or play the effect
-            if (canBePlaced(enemySelectedCard)) {
-
-                // Find all line where the card can naturally go
-                let availableLines = enemySelectedCard.unitTypes
-                    .flatMap(type => CARD_AUTHORIZED_LINES[type])
-                    .filter(line => ENEMY_LINES.includes(line))
-
-                if (notNil(enemySelectedCard.authorizedLines)) {
-                    availableLines = enemySelectedCard.authorizedLines.map(lineFromEnemyPerspective)
-                }
-
-                // Select a random line
-                let enemySelectedLine = availableLines[Math.floor(Math.random() * availableLines.length)]
-
-                playCard(enemySelectedCard, false, enemySelectedLine)
-            } else {
-                playCard(enemySelectedCard, false)
-            }
-
-            setPlayerTurn(true)
+            let [selectedCard, selectedLine, cardPlacedOn] = autoPlay(getGameState())
+            playCard(selectedCard, false, selectedLine, cardPlacedOn)
         }
     }, [playerTurn])
 
@@ -192,7 +170,6 @@ export function BoardComponent(props: BoardProps) {
         if (rounds.length >= 3) {
             return
         }
-        console.debug('EMPTY_BATTLEFIELD_ROWS', EMPTY_BATTLEFIELD_ROWS);
 
         setRounds([...rounds, { playerPoints, enemyPoints }])
         setBattlefield(clone(EMPTY_BATTLEFIELD_ROWS))

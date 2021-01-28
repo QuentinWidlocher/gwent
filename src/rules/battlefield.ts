@@ -1,6 +1,6 @@
-import { BATTLEFIELD_LINE } from '../constants/constants'
+import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, ENEMY_LINES, PLAYER_LINES } from '../constants/constants'
 import { mapBattlefield, mapOverBattlefield, swapPov } from '../helpers/battlefield'
-import { canBePlaced } from '../helpers/cards'
+import { canBePlaced, lineFromEnemyPerspective } from '../helpers/cards'
 import { removeCardFromHand } from '../helpers/hand'
 import { notNil } from '../helpers/helpers'
 import { Battlefield } from '../types/aliases'
@@ -34,11 +34,6 @@ export function computeBattlefieldPoints(battlefield: Battlefield): Battlefield 
     let newBattlefield = sortedModifiers.reduce(
         (curField, [modifier, card, line]) => modifier.effect(card, line, curField),
         resetBattlefied
-    )
-
-    console.debug(
-        'newBattlefield[BATTLEFIELD_LINE.PLAYER_MELEE]',
-        newBattlefield[BATTLEFIELD_LINE.PLAYER_MELEE]
     )
 
     return newBattlefield
@@ -77,4 +72,32 @@ export function getStateAfterPlayingCard(
     }
 
     return [true, fromPlayerPov ? gameState : swapPov(gameState)]
+}
+
+export function autoPlay(currentGameState: GameState, fromPlayerPov: boolean = false): [Card, BATTLEFIELD_LINE | undefined, PlacedCard | undefined] {
+    let gameState: GameState = fromPlayerPov ? currentGameState : swapPov(currentGameState)
+    let ownLines: BATTLEFIELD_LINE[] = fromPlayerPov ? PLAYER_LINES : ENEMY_LINES
+
+    // Select a random card from his hand
+    let selectedCard = gameState.playerHand[Math.floor(Math.random() * gameState.playerHand.length)]
+
+    // Place it on the battlefield or play the effect
+    if (canBePlaced(selectedCard)) {
+
+        // Find all line where the card can naturally go
+        let availableLines = selectedCard.unitTypes
+            .flatMap(type => CARD_AUTHORIZED_LINES[type])
+            .filter(line => ownLines.includes(line))
+
+        if (notNil(selectedCard.authorizedLines)) {
+            availableLines = selectedCard.authorizedLines.map(lineFromEnemyPerspective)
+        }
+
+        // Select a random line
+        let selectedLine = availableLines[Math.floor(Math.random() * availableLines.length)]
+
+        return [selectedCard, selectedLine, undefined]
+    } else {
+        return [selectedCard, undefined, undefined]
+    }
 }
