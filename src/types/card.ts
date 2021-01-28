@@ -30,4 +30,6 @@ export type PlacedCard = BaseCard & {
 
 export type Card = BaseCard | PlacedCard
 
-export type CardWithoutId = Omit<BaseCard, 'id'> | Omit<PlacedCard, 'id'>
+export type CardWithoutId = BaseCardWithoutId | PlacedCardWithoutId
+export type BaseCardWithoutId = Omit<BaseCard, 'id'>
+export type PlacedCardWithoutId = Omit<PlacedCard, 'id'>

@@ -1,19 +1,18 @@
-import { modifierCondition, weatherCondition } from '../rules/effects/conditions'
+import { modifierCondition } from '../rules/effects/conditions'
 import {
     clearWeatherEffect,
     decoyEffect,
     medicEffect,
     scorchEffect,
-    spyEffect,
-    weatherEffect,
+    spyEffect
 } from '../rules/effects/effects'
 import { CardWithoutId } from '../types/card'
+import { MELEE_SPY_CARD, WEATHER_CARD } from './cards'
 import { BATTLEFIELD_LINE, CARD_TYPE, DECK_TYPE, PLACED_CARD_TYPE } from './constants'
 import {
     COMMANDERS_HORN_MODIFIER,
     MORALE_BOOST_MODIFIER,
-    TIGHT_BOND_MODIFIER,
-    WEATHER_MODIFIER,
+    TIGHT_BOND_MODIFIER
 } from './modifiers'
 
 export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
@@ -98,13 +97,10 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
         occurence: 1,
     },
     {
+        ...MELEE_SPY_CARD,
         deckType: DECK_TYPE.NORTHERN_REALMS,
         title: 'Sigismund Dijkstra',
-        onCardPlayed: spyEffect,
-        type: CARD_TYPE.PLACED,
         originalStrength: 4,
-        unitTypes: [PLACED_CARD_TYPE.MELEE],
-        authorizedLines: [BATTLEFIELD_LINE.ENEMY_MELEE],
         occurence: 1,
     },
     {
@@ -149,13 +145,10 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
         occurence: 1,
     },
     {
+        ...MELEE_SPY_CARD,
         deckType: DECK_TYPE.NORTHERN_REALMS,
         title: 'Prince Stennis',
-        onCardPlayed: spyEffect,
-        type: CARD_TYPE.PLACED,
         originalStrength: 5,
-        unitTypes: [PLACED_CARD_TYPE.MELEE],
-        authorizedLines: [BATTLEFIELD_LINE.ENEMY_MELEE],
         occurence: 1,
     },
     {
@@ -271,13 +264,11 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
         occurence: 1,
     },
     {
+        ...MELEE_SPY_CARD,
         deckType: DECK_TYPE.NEUTRAL,
         title: 'Avallac’h',
-        onCardPlayed: spyEffect,
-        type: CARD_TYPE.PLACED,
-        originalStrength: 7,
+        originalStrength: 0,
         isHero: true,
-        unitTypes: [PLACED_CARD_TYPE.MELEE],
         occurence: 1,
     },
     {
@@ -323,37 +314,22 @@ export const CARD_LIST: (CardWithoutId & { occurence: number })[] = [
         occurence: 1,
     },
     {
-        deckType: DECK_TYPE.NEUTRAL,
+        ...WEATHER_CARD,
         title: 'Biting Frost',
-        modifier: WEATHER_MODIFIER,
-        onCardPlayed: weatherEffect,
-        canBePlayed: weatherCondition,
-        type: CARD_TYPE.MODIFIER,
-        originalStrength: 0,
         unitTypes: [PLACED_CARD_TYPE.MELEE],
         authorizedLines: [BATTLEFIELD_LINE.ENEMY_MELEE, BATTLEFIELD_LINE.PLAYER_MELEE],
         occurence: 3,
     },
     {
-        deckType: DECK_TYPE.NEUTRAL,
+        ...WEATHER_CARD,
         title: 'Impenetrable Fog',
-        modifier: WEATHER_MODIFIER,
-        onCardPlayed: weatherEffect,
-        canBePlayed: weatherCondition,
-        type: CARD_TYPE.MODIFIER,
-        originalStrength: 0,
         unitTypes: [PLACED_CARD_TYPE.RANGED],
         authorizedLines: [BATTLEFIELD_LINE.ENEMY_RANGED, BATTLEFIELD_LINE.PLAYER_RANGED],
         occurence: 3,
     },
     {
-        deckType: DECK_TYPE.NEUTRAL,
+        ...WEATHER_CARD,
         title: 'Torrential Rain',
-        modifier: WEATHER_MODIFIER,
-        onCardPlayed: weatherEffect,
-        canBePlayed: weatherCondition,
-        type: CARD_TYPE.MODIFIER,
-        originalStrength: 0,
         unitTypes: [PLACED_CARD_TYPE.SIEGE],
         authorizedLines: [BATTLEFIELD_LINE.ENEMY_SIEGE, BATTLEFIELD_LINE.PLAYER_SIEGE],
         occurence: 3,
