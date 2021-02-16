@@ -24,6 +24,8 @@
 
 .decks {
     grid-area: 1 / 3 / 3 / 4;
+    display: flex;
+    flex-direction: column;
 }
 
 .playerHand {

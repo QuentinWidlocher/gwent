@@ -9,6 +9,7 @@ import { Card, PlacedCard } from "../../types/card"
 import { GameState } from "../../types/game-state"
 import { BattlefieldComponent } from "./Battlefield/Battlefield"
 import styles from "./Board.module.css"
+import { CardPreviewComponent } from "./CardPreview/CardPreview"
 import { PlayerHandComponent } from "./PlayerHand/PlayerHand"
 import { ScoresComponent } from "./Scores/Scores"
 import { WeatherBoxComponent } from "./WeatherBox/WeatherBox"
@@ -150,7 +151,7 @@ export function BoardComponent(props: BoardProps) {
         }
 
         if (notNil(lineType) && canBePlaced(selectedCard)) {
-            if (notNil(card) && notNil(selectedCard.onCardPlayed)) {                
+            if (notNil(card) && notNil(selectedCard.onCardPlayed)) {
                 battlefieldLineSelect(lineType, selectedCard, card)
             } else {
                 battlefieldLineSelect(lineType, selectedCard)
@@ -223,6 +224,7 @@ export function BoardComponent(props: BoardProps) {
             </div>
             <div className={styles.decks}>
                 <button onClick={endRound}>End round</button>
+                <CardPreviewComponent card={selectedCard}></CardPreviewComponent>
             </div>
         </div>
     )
