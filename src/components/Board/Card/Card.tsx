@@ -15,13 +15,11 @@ export interface CardProps {
 export function CardComponent(props: CardProps) {
 
     let cardStrength = null
-    let cardTypes = null
     let cardHasBonus = false
     let cardHasMalus = false
 
     if (canBePlaced(props.card)) {
         cardStrength = getStrength(props.card)
-        cardTypes = props.card.unitTypes.map(type => PLACED_CARD_TYPE_NAMES[type]).join('/')
 
         let cardOriginalStrength = props.card.originalStrength
 
