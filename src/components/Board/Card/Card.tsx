@@ -41,6 +41,8 @@ export function CardComponent(props: CardProps) {
         </h2>
     )
 
+    let cardStyle = { "--cardUrl": `url(${props.card.imageUrl})` } as React.CSSProperties;
+
     return (
         <div
             className={[
@@ -49,12 +51,10 @@ export function CardComponent(props: CardProps) {
                 (props.selected ? styles.selected : ''),
                 (cardIsPlaced(props.card) && props.card.isHero ? styles.hero : ''),
             ].join(' ')}
+            style={cardStyle}
             onClick={() => notNil(props.onClick) && props.onClick()}
         >
             {cardIsPlaced(props.card) && strength}
-
-            <h1 className={styles.title}>{(props.card.appliedModifiers ?? []).length > 0 && '*'} {props.card.title}</h1>
-            <h2 className={styles.type}>{cardTypes}</h2>
         </div>
     )
 }

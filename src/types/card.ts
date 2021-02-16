@@ -12,6 +12,7 @@ export type BaseCard = {
     type: CARD_TYPE
     title: string
     id: string
+    imageUrl: string
     deckType: DECK_TYPE
     appliedModifiers?: Modifier[]
     onCardPlayed?: SpecialEffect

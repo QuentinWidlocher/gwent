@@ -1,5 +1,9 @@
 @value theme: "../../../../theme.module.css";
 @value (card-width, card-height, board-color-base, board-color-dark, board-color-light, card-margin) from theme;
+@value (card) from "../../Card/Card.module.css";
+
+/**/
+
 .line {
     display: flex;
     flex-direction: row;
@@ -38,8 +42,9 @@
     align-items: center;
 }
 
-.cards * {
+.cards .card {
     margin: card-margin;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
 }
 
 .strength {

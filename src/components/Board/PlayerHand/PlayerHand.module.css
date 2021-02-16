@@ -1,5 +1,6 @@
 @value theme: "../../../theme.module.css";
 @value (card-height, card-margin) from theme;
+@value (card) from "../Card/Card.module.css";
 
 /**/
 
@@ -8,6 +9,7 @@
     padding: 1rem;
 }
 
-.playerHand * {
+.playerHand .card {
     margin: card-margin;
+    box-shadow: 0 4px 9px rgba(0, 0, 0, 0.33);
 }

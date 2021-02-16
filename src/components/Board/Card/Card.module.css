@@ -1,19 +1,20 @@
 @value theme: "../../../theme.module.css";
 @value (card-width, card-height, card-hero-color) from theme;
 .card {
+    background-image: var(--cardUrl);
+    background-size: cover;
     height: card-height;
     width: card-width;
-    border: solid black 2px;
-    border-radius: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    border-radius: 0.3rem;
     background-color: white;
+    transition: transform 0.1s cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 
 .selected {
-    background-color: lightblue;
+    background-blend-mode: overlay;
+    background-color: hsl(395, 15%, 50%);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    transform: translateY(-1rem);
 }
 
 .selectable {
@@ -21,18 +22,20 @@
 }
 
 .selectable:hover:not(.selected) {
-    background-color: azure;
+    background-blend-mode: overlay;
+    background-color: hsl(395, 15%, 50%);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    transform: translateY(-3px);
 }
 
 .strength {
-    height: 1rem;
-    width: 1rem;
-    font-size: small;
-    padding: 0.1rem;
     text-align: center;
-    border: solid 1px black;
     border-radius: 100%;
-    margin: 0;
+    height: 15px;
+    width: 15px;
+    background-color: white;
+    font-size: 11px;
+    margin: 3px;
 }
 
 .strength.bonus {
