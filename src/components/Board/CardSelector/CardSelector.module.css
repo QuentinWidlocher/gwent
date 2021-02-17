@@ -1,0 +1,33 @@
+@value (cardPreview) from "../CardPreview/CardPreview.module.css";
+@value (card-emphasis-blend-mode, card-emphasis-color, card-emphasis-shadow) from "../Card/Card.module.css";
+
+/**/
+
+.fullscreenWrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.fullscreenWrapper .cardPreview {
+    margin: auto 5px;
+    border-radius: 0.3rem;
+    transition: transform 0.1s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.fullscreenWrapper .cardPreview.selectable:hover:not(.selected) {
+    background-blend-mode: card-emphasis-blend-mode;
+    background-color: card-emphasis-color;
+    transform: translateY(-5px);
+}
+
+.selected {
+    background-blend-mode: card-emphasis-blend-mode;
+    background-color: card-emphasis-color;
+    box-shadow: card-emphasis-shadow;
+    transform: translateY(-2.5rem);
+}

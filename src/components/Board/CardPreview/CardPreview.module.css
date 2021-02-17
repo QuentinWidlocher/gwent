@@ -1,5 +1,11 @@
 .cardPreview {
-    width: 75%;
+    background-image: var(--cardUrl);
+    background-size: cover;
     margin: auto;
     border-radius: 1rem;
+}
+
+.cardPreview img {
+    width: 100%;
+    visibility: hidden;
 }

@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { BoardComponent } from '../components/Board/Board'
+import { CardPreviewComponent } from '../components/Board/CardPreview/CardPreview'
+import { CardSelectorComponent } from '../components/Board/CardSelector/CardSelector'
 import { DECK_TYPE } from '../constants/constants'
 import { DECKS } from '../constants/decks'
 import { findCards } from '../helpers/debug'

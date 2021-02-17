@@ -1,5 +1,14 @@
 @value theme: "../../../theme.module.css";
 @value (card-width, card-height, card-hero-color) from theme;
+
+/**/
+
+@value card-emphasis-blend-mode: overlay;
+@value card-emphasis-color: hsl(395, 15%, 50%);
+@value card-emphasis-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+
+/**/
+
 .card {
     background-image: var(--cardUrl);
     background-size: cover;
@@ -11,9 +20,9 @@
 }
 
 .selected {
-    background-blend-mode: overlay;
-    background-color: hsl(395, 15%, 50%);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    background-blend-mode: card-emphasis-blend-mode;
+    background-color: card-emphasis-color;
+    box-shadow: card-emphasis-shadow;
     transform: translateY(-1rem);
 }
 
@@ -22,9 +31,9 @@
 }
 
 .selectable:hover:not(.selected) {
-    background-blend-mode: overlay;
-    background-color: hsl(395, 15%, 50%);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    background-blend-mode: card-emphasis-blend-mode;
+    background-color: card-emphasis-color;
+    box-shadow: card-emphasis-shadow;
     transform: translateY(-3px);
 }
 
@@ -36,6 +45,7 @@
     background-color: white;
     font-size: 11px;
     margin: 3px;
+    box-shadow: inset 0px -3px 5px rgba(0, 0, 0, 0.3);
 }
 
 .strength.bonus {

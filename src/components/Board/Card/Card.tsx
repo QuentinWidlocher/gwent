@@ -5,7 +5,7 @@ import { notNil } from "../../../helpers/helpers"
 import { Card } from "../../../types/card"
 import styles from "./Card.module.css"
 
-export interface CardProps {
+export type CardProps = {
     card: Card
     canBeSelected?: boolean
     selected?: boolean
