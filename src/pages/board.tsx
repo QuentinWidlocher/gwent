@@ -24,7 +24,7 @@ function shuffled<T>(array: T[]): T[] {
 
 export function BoardPage(_: BoardPageProps = {}) {
 
-    const [playerDeck] = useState(findCards(['medic', 'catapult', 'scorch']))
+    const [playerDeck] = useState(findCards(['medic', 'catapult', 'catapult', 'catapult', 'scorch']))
     const [enemyDeck] = useState(shuffled(mixDeckWithNeutral(DECK_TYPE.NORTHERN_REALMS)))
 
     return (

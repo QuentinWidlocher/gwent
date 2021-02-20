@@ -10,11 +10,15 @@
     right: 0;
     bottom: 0;
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     background-color: rgba(0, 0, 0, 0.5);
 }
 
 .fullscreenWrapper .cardPreview {
     margin: auto 5px;
+    max-width: 20rem;
     border-radius: 0.3rem;
     transition: transform 0.1s cubic-bezier(0.075, 0.82, 0.165, 1);
 }
@@ -30,4 +34,10 @@
     background-color: card-emphasis-color;
     box-shadow: card-emphasis-shadow;
     transform: translateY(-2.5rem);
+}
+
+.cardList {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
 }

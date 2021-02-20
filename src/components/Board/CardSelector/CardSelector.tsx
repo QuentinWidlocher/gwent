@@ -33,24 +33,34 @@ export function CardSelectorComponent(props: CardSelectorProps) {
 
     return (
         <div className={styles.fullscreenWrapper}>
-            {props.cardList.map(card => {
+            <div className={styles.cardList}>
+                {props.cardList.map(card => {
 
-                let cardIsSelected = selectedCardIds.includes(card.id)
+                    let cardIsSelected = selectedCardIds.includes(card.id)
 
-                return (
-                    <CardPreviewComponent
-                        card={card}
-                        key={card.id}
-                        className={[
-                            (cardIsSelected ? styles.selected : ''),
-                            (canSelectACard() ? styles.selectable : ''),
-                        ].join(' ')}
-                        onClick={(selectedCard) => onCardClick(selectedCard, cardIsSelected)}
-                    />
-                )
-            })}
-
-            <button onClick={() => props.onCardsSelected(getSelectedCards())}>c okkkkk</button>
+                    return (
+                        <CardPreviewComponent
+                            card={card}
+                            key={card.id}
+                            className={[
+                                (cardIsSelected ? styles.selected : ''),
+                                (canSelectACard() ? styles.selectable : ''),
+                            ].join(' ')}
+                            onClick={(selectedCard) => onCardClick(selectedCard, cardIsSelected)}
+                        />
+                    )
+                })}
+            </div>
+            <button
+                onClick={() => props.onCardsSelected(getSelectedCards())}
+                disabled={selectedCardIds.length < props.maxCardSelected}
+            >
+                {
+                    (selectedCardIds.length < props.maxCardSelected)
+                        ? `Select ${props.maxCardSelected} cards`
+                        : `Confirm the selection of ${selectedCardIds.length} cards`
+                }
+            </button>
         </div>
     )
 }
@@ -70,14 +80,14 @@ export function CardSelectorContextProvider(props: PropsWithChildren<{}>) {
     const resolver = useRef<(cards: Card[]) => void>();
 
     function handleShow() {
-        console.debug('cardList', cardList);
-
         setShowCardSelector(true);
 
-        return new Promise<Card[]>(function (resolve) {
+        // prepare the resolver to resolve the returned promise with selected cards
+        return new Promise<Card[]>(resolve => {
             resolver.current = resolve;
         });
     };
+
 
     function onCardsSelected(cards: Card[]) {
         resolver.current && resolver.current(cards);

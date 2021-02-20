@@ -40,7 +40,7 @@ export function BoardComponent(props: BoardProps) {
     const [playerDeck, setPlayerDeck] = useState<Card[]>(props.playerDeck.slice(10))
     const [enemyDeck, setEnemyDeck] = useState<Card[]>(props.enemyDeck.slice(10))
 
-    const [playerDiscard, setPlayerDiscard] = useState<Card[]>([])
+    const [playerDiscard, setPlayerDiscard] = useState<Card[]>(props.enemyDeck)
     const [enemyDiscard, setEnemyDiscard] = useState<Card[]>([])
 
     const [playerPoints, setPlayerPoints] = useState(0)
