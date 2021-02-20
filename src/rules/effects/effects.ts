@@ -1,18 +1,17 @@
 import { isNil } from 'ramda'
 import { mapOverBattlefield } from '../../helpers/battlefield'
-import { canBePlaced, cardIsPlaced, getStrength, isHero, notHero } from '../../helpers/cards'
+import { canBePlaced, getStrength, isHero, notHero } from '../../helpers/cards'
 import { notNil } from '../../helpers/helpers'
-import { Card, PlacedCard } from '../../types/card'
 import { SpecialEffect } from '../../types/effects'
 import { weatherModifier } from './modifiers'
 
-export const medicEffect: SpecialEffect = (self, state) => {
+export const medicEffect: SpecialEffect = async (self, state) => {
     console.log('medic effect')
 
     return state
 }
 
-export const clearWeatherEffect: SpecialEffect = (_, state) => {
+export const clearWeatherEffect: SpecialEffect = async (_, state) => {
     console.log('Clear Weather effect')
 
     let battlefield = mapOverBattlefield(state.battlefield, line =>
@@ -22,7 +21,7 @@ export const clearWeatherEffect: SpecialEffect = (_, state) => {
     return { ...state, battlefield, weatherCards: [] }
 }
 
-export const weatherEffect: SpecialEffect = (self, state) => {
+export const weatherEffect: SpecialEffect = async (self, state) => {
     console.log('Weather effect')
     // Place the card in the weather box
     if (canBePlaced(self)) {
@@ -32,7 +31,7 @@ export const weatherEffect: SpecialEffect = (self, state) => {
     }
 }
 
-export const musterEffect: SpecialEffect = (self, state) => {
+export const musterEffect: SpecialEffect = async (self, state) => {
     console.log('Muster effect')
 
     while (state.playerDeck.some(card => card.title == self.title)) {
@@ -43,14 +42,14 @@ export const musterEffect: SpecialEffect = (self, state) => {
 
     return state
 }
-export const spyEffect: SpecialEffect = (_, state) => {
+export const spyEffect: SpecialEffect = async (_, state) => {
     console.log('Spy effect')
     let drawnCards = state.playerDeck.splice(0, 2)
     let newState = { ...state, playerHand: [...state.playerHand, ...drawnCards] }
     return newState
 }
 
-export const decoyEffect: SpecialEffect = (_, state, linePlacedOn, cardPlacedOn) => {
+export const decoyEffect: SpecialEffect = async (_, state, linePlacedOn, cardPlacedOn) => {
     console.log('Decoy effect')
     if (notNil(linePlacedOn) && notNil(cardPlacedOn)) {
         let battlefieldWithSwappedCards = mapOverBattlefield(state.battlefield, (line, lineType) => {
@@ -60,14 +59,18 @@ export const decoyEffect: SpecialEffect = (_, state, linePlacedOn, cardPlacedOn)
                 return line
             }
         })
-        return { ...state, playerHand: [...state.playerHand, cardPlacedOn], battlefield: battlefieldWithSwappedCards }
+        return {
+            ...state,
+            playerHand: [...state.playerHand, cardPlacedOn],
+            battlefield: battlefieldWithSwappedCards,
+        }
     } else {
         return state
     }
 }
 
 // TODO: send to discard instead
-export const scorchEffect: SpecialEffect = (_, state) => {
+export const scorchEffect: SpecialEffect = async (_, state) => {
     console.log('Scorch effect')
     let cardsStrength = Object.values(state.battlefield).flatMap(line =>
         line.filter(notHero).map(getStrength)

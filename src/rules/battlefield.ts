@@ -40,13 +40,13 @@ export function computeBattlefieldPoints(battlefield: Battlefield): Battlefield 
 }
 
 // Playing a card is independant from playing it on the board or activating a special card
-export function getStateAfterPlayingCard(
+export async function getStateAfterPlayingCard(
     card: Card,
     currentGameState: GameState,
     fromPlayerPov: boolean = true,
     linePlacedOn?: BATTLEFIELD_LINE,
     cardPlacedOn?: PlacedCard
-): [Boolean, GameState] {
+): Promise<[Boolean, GameState]> {
     let gameState: GameState = fromPlayerPov ? currentGameState : swapPov(currentGameState)
 
     let handWithoutCard = removeCardFromHand(
@@ -68,13 +68,16 @@ export function getStateAfterPlayingCard(
 
     // We update the game state if the card has an effect
     if (notNil(card.onCardPlayed)) {
-        gameState = card.onCardPlayed(card, gameState, linePlacedOn, cardPlacedOn)
+        gameState = await card.onCardPlayed(card, gameState, linePlacedOn, cardPlacedOn)
     }
 
     return [true, fromPlayerPov ? gameState : swapPov(gameState)]
 }
 
-export function autoPlay(currentGameState: GameState, fromPlayerPov: boolean = false): [Card, BATTLEFIELD_LINE | undefined, PlacedCard | undefined] {
+export function autoPlay(
+    currentGameState: GameState,
+    fromPlayerPov: boolean = false
+): [Card, BATTLEFIELD_LINE | undefined, PlacedCard | undefined] {
     let gameState: GameState = fromPlayerPov ? currentGameState : swapPov(currentGameState)
     let ownLines: BATTLEFIELD_LINE[] = fromPlayerPov ? PLAYER_LINES : ENEMY_LINES
 
@@ -83,7 +86,6 @@ export function autoPlay(currentGameState: GameState, fromPlayerPov: boolean = f
 
     // Place it on the battlefield or play the effect
     if (canBePlaced(selectedCard)) {
-
         // Find all line where the card can naturally go
         let availableLines = selectedCard.unitTypes
             .flatMap(type => CARD_AUTHORIZED_LINES[type])

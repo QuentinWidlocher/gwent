@@ -9,6 +9,11 @@ export type ModifierEffect = (
     battlefield: Battlefield
 ) => Battlefield
 
-export type SpecialEffect = (self: Card, state: GameState, linePlacedOn?: BATTLEFIELD_LINE, cardPlacedOn?: Card) => GameState
+export type SpecialEffect = (
+    self: Card,
+    state: GameState,
+    linePlacedOn?: BATTLEFIELD_LINE,
+    cardPlacedOn?: Card
+) => Promise<GameState>
 
 export type ConditionEffect = (self: Card, state: GameState, linePlacedOn?: BATTLEFIELD_LINE) => boolean
