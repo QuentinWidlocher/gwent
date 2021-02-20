@@ -43,7 +43,6 @@ export function BattlefieldComponent(props: BattlefieldProps) {
     }
 
     function onLineClick(lineType: BATTLEFIELD_LINE, card?: PlacedCard) {
-        console.debug(card)
         if (notNil(card)) {
             props.onCardClick(lineType, card)
         } else {

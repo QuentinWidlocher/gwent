@@ -1,16 +1,16 @@
-import { clone } from "ramda"
+import { clone, empty, isEmpty, not } from "ramda"
 import React, { useEffect, useState } from "react"
 import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, EMPTY_BATTLEFIELD_ROWS, ENEMY_LINES, PLAYER_LINES } from "../../constants/constants"
 import { getTotalStrength } from "../../helpers/battlefield"
 import { canBePlaced, getAuthorizedLines, lineFromEnemyPerspective } from "../../helpers/cards"
 import { notNil } from "../../helpers/helpers"
-import { autoPlay, computeBattlefieldPoints, getStateAfterPlayingCard } from "../../rules/battlefield"
+import { autoPlay, autoPlayCard, computeBattlefieldPoints, getStateAfterPlayingCard } from "../../rules/battlefield"
 import { Card, PlacedCard } from "../../types/card"
 import { GameState } from "../../types/game-state"
 import { BattlefieldComponent } from "./Battlefield/Battlefield"
 import styles from "./Board.module.css"
 import { CardPreviewComponent } from "./CardPreview/CardPreview"
-import { CardSelectorComponent } from "./CardSelector/CardSelector"
+import { CardSelectorComponent, useCardSelectorContext } from "./CardSelector/CardSelector"
 import { PlayerHandComponent } from "./PlayerHand/PlayerHand"
 import { ScoresComponent } from "./Scores/Scores"
 import { WeatherBoxComponent } from "./WeatherBox/WeatherBox"
@@ -49,6 +49,8 @@ export function BoardComponent(props: BoardProps) {
     const [rounds, setRounds] = useState<Round[]>([])
 
     const [playerTurn, setPlayerTurn] = useState<boolean>(Math.random() >= 0.5)
+
+    const cardSelectorContext = useCardSelectorContext()
 
     useEffect(function enemyTurn() {
         // The enemy only plays on his turn if he still have cards
@@ -109,11 +111,20 @@ export function BoardComponent(props: BoardProps) {
     // Playing a card is independant from playing it on the board or activating a special card
     async function playCard(card: Card, fromPlayerPov: boolean = true, linePlacedOn?: BATTLEFIELD_LINE, cardPlacedOn?: PlacedCard) {
 
-        let [couldPlay, newGameState] = await getStateAfterPlayingCard(card, getGameState(), fromPlayerPov, linePlacedOn, cardPlacedOn);
+        let [couldPlay, newGameState, cardsToPlayNext] = await getStateAfterPlayingCard(card, getGameState(), fromPlayerPov, linePlacedOn, cardPlacedOn, cardSelectorContext);
 
         if (!couldPlay) {
             console.info('Card', card.title, 'could not be played')
             return
+        }
+
+        if (not(isEmpty(cardsToPlayNext))) {
+            // It's actually not possible to allow the player to play the card to play next, so it plays automatically
+            cardsToPlayNext.forEach(async (cardToPlayNext) => {
+                let ownLines: BATTLEFIELD_LINE[] = fromPlayerPov ? PLAYER_LINES : ENEMY_LINES
+                let [, selectedLine] = autoPlayCard(cardToPlayNext, ownLines);
+                [couldPlay, newGameState] = await getStateAfterPlayingCard(cardToPlayNext, newGameState, fromPlayerPov, selectedLine, undefined, cardSelectorContext);
+            })
         }
 
         console.info(fromPlayerPov ? 'Player' : 'Opponent', 'played', card.title)

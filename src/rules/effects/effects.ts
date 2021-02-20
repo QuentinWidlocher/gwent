@@ -1,14 +1,28 @@
-import { isNil } from 'ramda'
+import { isNil, not, without } from 'ramda'
 import { mapOverBattlefield } from '../../helpers/battlefield'
-import { canBePlaced, getStrength, isHero, notHero } from '../../helpers/cards'
+import { canBePlaced, getStrength, notHero } from '../../helpers/cards'
 import { notNil } from '../../helpers/helpers'
+import { PlacedCard } from '../../types/card'
 import { SpecialEffect } from '../../types/effects'
+import { GameState } from '../../types/game-state'
 import { weatherModifier } from './modifiers'
 
-export const medicEffect: SpecialEffect = async (self, state) => {
+export const medicEffect: SpecialEffect = async (_, state, __, ___, cardSelector) => {
     console.log('medic effect')
 
-    return state
+    if (isNil(cardSelector)) {
+        return [state, []]
+    }
+
+    cardSelector.setCardList(state.playerDiscard.filter(notHero).slice(0, 10))
+    cardSelector.setMaxCardSelected(1)
+    let selectedCards = await cardSelector.show()
+
+    let newDiscard = without(selectedCards, state.playerDiscard)
+
+    let newState: GameState = { ...state, playerDiscard: newDiscard }
+
+    return [newState, selectedCards]
 }
 
 export const clearWeatherEffect: SpecialEffect = async (_, state) => {
@@ -69,7 +83,6 @@ export const decoyEffect: SpecialEffect = async (_, state, linePlacedOn, cardPla
     }
 }
 
-// TODO: send to discard instead
 export const scorchEffect: SpecialEffect = async (_, state) => {
     console.log('Scorch effect')
     let cardsStrength = Object.values(state.battlefield).flatMap(line =>
@@ -77,10 +90,15 @@ export const scorchEffect: SpecialEffect = async (_, state) => {
     )
     let maxStrength = Math.max(...cardsStrength)
 
-    let scorchedBoard = mapOverBattlefield(state.battlefield, line =>
-        line.filter(card => isHero(card) || getStrength(card) < maxStrength)
-    )
+    let allRemovedCards: PlacedCard[] = []
+
+    let scorchedBoard = mapOverBattlefield(state.battlefield, line => {
+        let removedCards = line.filter(card => notHero(card) && getStrength(card) >= maxStrength)
+        allRemovedCards = [...allRemovedCards, ...removedCards]
+        return line.filter(card => not(removedCards.includes(card)))
+    })
 
     state.battlefield = scorchedBoard
+    state.playerDiscard = [...allRemovedCards, ...state.playerDiscard]
     return state
 }

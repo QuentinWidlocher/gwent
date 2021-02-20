@@ -1,3 +1,4 @@
+import { CardSelectorContextProps } from '../components/Board/CardSelector/CardSelector'
 import { BATTLEFIELD_LINE } from '../constants/constants'
 import { Battlefield } from './aliases'
 import { Card, PlacedCard } from './card'
@@ -13,7 +14,8 @@ export type SpecialEffect = (
     self: Card,
     state: GameState,
     linePlacedOn?: BATTLEFIELD_LINE,
-    cardPlacedOn?: Card
-) => Promise<GameState>
+    cardPlacedOn?: Card,
+    cardSelectorContext?: CardSelectorContextProps
+) => Promise<GameState> | Promise<[GameState, Card[]]>
 
 export type ConditionEffect = (self: Card, state: GameState, linePlacedOn?: BATTLEFIELD_LINE) => boolean

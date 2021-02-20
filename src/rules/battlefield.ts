@@ -1,3 +1,4 @@
+import { CardSelectorContextProps } from '../components/Board/CardSelector/CardSelector'
 import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, ENEMY_LINES, PLAYER_LINES } from '../constants/constants'
 import { mapBattlefield, mapOverBattlefield, swapPov } from '../helpers/battlefield'
 import { canBePlaced, lineFromEnemyPerspective } from '../helpers/cards'
@@ -45,9 +46,11 @@ export async function getStateAfterPlayingCard(
     currentGameState: GameState,
     fromPlayerPov: boolean = true,
     linePlacedOn?: BATTLEFIELD_LINE,
-    cardPlacedOn?: PlacedCard
-): Promise<[Boolean, GameState]> {
+    cardPlacedOn?: PlacedCard,
+    cardSelectorContext?: CardSelectorContextProps
+): Promise<[Boolean, GameState, Card[]]> {
     let gameState: GameState = fromPlayerPov ? currentGameState : swapPov(currentGameState)
+    let cardsToPlayNext: Card[] = []
 
     let handWithoutCard = removeCardFromHand(
         card,
@@ -56,8 +59,9 @@ export async function getStateAfterPlayingCard(
 
     gameState.playerHand = handWithoutCard
 
+    // If the card has a special condition to be played and it fails, we return empty infos and a false to indicate failure
     if (notNil(card.canBePlayed) && !card.canBePlayed(card, gameState, linePlacedOn)) {
-        return [false, currentGameState]
+        return [false, currentGameState, cardsToPlayNext]
     }
 
     if (notNil(linePlacedOn) && canBePlaced(card)) {
@@ -68,10 +72,16 @@ export async function getStateAfterPlayingCard(
 
     // We update the game state if the card has an effect
     if (notNil(card.onCardPlayed)) {
-        gameState = await card.onCardPlayed(card, gameState, linePlacedOn, cardPlacedOn)
+        let infos = await card.onCardPlayed(card, gameState, linePlacedOn, cardPlacedOn, cardSelectorContext)
+
+        if (Array.isArray(infos)) {
+            ;[gameState, cardsToPlayNext] = infos
+        } else {
+            gameState = infos
+        }
     }
 
-    return [true, fromPlayerPov ? gameState : swapPov(gameState)]
+    return [true, fromPlayerPov ? gameState : swapPov(gameState), cardsToPlayNext]
 }
 
 export function autoPlay(
@@ -84,6 +94,13 @@ export function autoPlay(
     // Select a random card from his hand
     let selectedCard = gameState.playerHand[Math.floor(Math.random() * gameState.playerHand.length)]
 
+    return autoPlayCard(selectedCard, ownLines)
+}
+
+export function autoPlayCard(
+    selectedCard: Card,
+    ownLines: BATTLEFIELD_LINE[]
+): [Card, BATTLEFIELD_LINE | undefined, PlacedCard | undefined] {
     // Place it on the battlefield or play the effect
     if (canBePlaced(selectedCard)) {
         // Find all line where the card can naturally go
