@@ -1,6 +1,6 @@
-import { clone, empty, isEmpty, not } from "ramda"
+import { clone, empty, isEmpty, not, tail } from "ramda"
 import React, { useEffect, useState } from "react"
-import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, EMPTY_BATTLEFIELD_ROWS, ENEMY_LINES, PLAYER_LINES } from "../../constants/constants"
+import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, EMPTY_BATTLEFIELD_ROWS, ENEMY_LINES, PLAYER_LINES, SIDE } from "../../constants/constants"
 import { getTotalStrength } from "../../helpers/battlefield"
 import { canBePlaced, getAuthorizedLines, lineFromEnemyPerspective } from "../../helpers/cards"
 import { notNil } from "../../helpers/helpers"
@@ -24,6 +24,11 @@ export type Round = {
     enemyPoints: number
 }
 
+export type AdditionnalTurn = {
+    playedByPlayer: boolean,
+    mustPlayCard: Card | null
+}
+
 const enemyFakeThinkingTime = 500
 
 export function BoardComponent(props: BoardProps) {
@@ -31,6 +36,8 @@ export function BoardComponent(props: BoardProps) {
     const [selectedCard, setSelectedCard] = useState<Card | null>(null)
 
     const [battlefield, setBattlefield] = useState(clone(EMPTY_BATTLEFIELD_ROWS))
+
+    const [lockPlayerHand, setLockPlayerHand] = useState(false)
 
     const [weatherCards, setWeatherCards] = useState<PlacedCard[]>([])
 
@@ -40,7 +47,7 @@ export function BoardComponent(props: BoardProps) {
     const [playerDeck, setPlayerDeck] = useState<Card[]>(props.playerDeck.slice(10))
     const [enemyDeck, setEnemyDeck] = useState<Card[]>(props.enemyDeck.slice(10))
 
-    const [playerDiscard, setPlayerDiscard] = useState<Card[]>(props.enemyDeck)
+    const [playerDiscard, setPlayerDiscard] = useState<Card[]>([])
     const [enemyDiscard, setEnemyDiscard] = useState<Card[]>([])
 
     const [playerPoints, setPlayerPoints] = useState(0)
@@ -49,6 +56,7 @@ export function BoardComponent(props: BoardProps) {
     const [rounds, setRounds] = useState<Round[]>([])
 
     const [playerTurn, setPlayerTurn] = useState<boolean>(Math.random() >= 0.5)
+    const [additionnalTurns, setAdditionnalTurns] = useState<AdditionnalTurn[]>([])
 
     const cardSelectorContext = useCardSelectorContext()
 
@@ -118,20 +126,20 @@ export function BoardComponent(props: BoardProps) {
             return
         }
 
+        let newAdditionnalTurns: AdditionnalTurn[] = []
+
         if (not(isEmpty(cardsToPlayNext))) {
-            // It's actually not possible to allow the player to play the card to play next, so it plays automatically
-            cardsToPlayNext.forEach(async (cardToPlayNext) => {
-                let ownLines: BATTLEFIELD_LINE[] = fromPlayerPov ? PLAYER_LINES : ENEMY_LINES
-                let [, selectedLine] = autoPlayCard(cardToPlayNext, ownLines);
-                [couldPlay, newGameState] = await getStateAfterPlayingCard(cardToPlayNext, newGameState, fromPlayerPov, selectedLine, undefined, cardSelectorContext);
-            })
+            newAdditionnalTurns = cardsToPlayNext.map((cardToPlayNext): AdditionnalTurn => ({
+                playedByPlayer: fromPlayerPov,
+                mustPlayCard: cardToPlayNext
+            }))
         }
 
         console.info(fromPlayerPov ? 'Player' : 'Opponent', 'played', card.title)
 
         setGameState(newGameState)
 
-        endTurn()
+        endTurn(newAdditionnalTurns)
     }
 
     // When the player clicks on a line
@@ -174,9 +182,27 @@ export function BoardComponent(props: BoardProps) {
     }
 
     // Unselect the card and play the next turn
-    function endTurn() {
-        setSelectedCard(null)
-        setTimeout(() => setPlayerTurn(!playerTurn), enemyFakeThinkingTime)
+    function endTurn(newAdditionnalTurns: AdditionnalTurn[] = []) {
+
+        // We need to work with all the planned turns
+        let additionnalTurnsPlusNewOnes = [...additionnalTurns, ...newAdditionnalTurns]
+
+        if (isEmpty(additionnalTurnsPlusNewOnes)) {
+            // By default we just make the other side play
+            setSelectedCard(null)
+            setLockPlayerHand(playerTurn)
+            setTimeout(() => setPlayerTurn(!playerTurn), enemyFakeThinkingTime)
+        } else {
+            // If we have next turns specified, we play the next which is the first in the list
+            let { mustPlayCard, playedByPlayer } = additionnalTurnsPlusNewOnes[0];
+            setSelectedCard(mustPlayCard)
+            setPlayerTurn(playedByPlayer)
+
+            setLockPlayerHand(!playedByPlayer || notNil(mustPlayCard))
+
+            // We just set up the next turn so we remove it from the list (it was the first on)
+            setAdditionnalTurns(tail(additionnalTurnsPlusNewOnes))
+        }
     }
 
     function endRound() {
@@ -231,7 +257,7 @@ export function BoardComponent(props: BoardProps) {
                     cards={playerHand}
                     selectedCard={selectedCard}
                     onCardSelect={setSelectedCard}
-                    canSelectCards={playerTurn}
+                    canSelectCards={not(lockPlayerHand)}
                 />
             </div>
             <div className={styles.decks}>

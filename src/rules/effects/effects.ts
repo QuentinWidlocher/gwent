@@ -1,4 +1,5 @@
-import { isNil, not, without } from 'ramda'
+import { isEmpty, isNil, not, without } from 'ramda'
+import { CARD_TYPE } from '../../constants/constants'
 import { mapOverBattlefield } from '../../helpers/battlefield'
 import { canBePlaced, getStrength, notHero } from '../../helpers/cards'
 import { notNil } from '../../helpers/helpers'
@@ -10,12 +11,14 @@ import { weatherModifier } from './modifiers'
 export const medicEffect: SpecialEffect = async (_, state, __, ___, cardSelector) => {
     console.log('medic effect')
 
-    if (isNil(cardSelector)) {
+    if (isNil(cardSelector) || isEmpty(state.playerDiscard)) {
         return [state, []]
     }
 
-    cardSelector.setCardList(state.playerDiscard.filter(notHero).slice(0, 10))
+    // We display the 10 first cards from the discard that are not heroes or special cards
+    cardSelector.setCardList(state.playerDiscard.filter(c => c.type == CARD_TYPE.PLACED).filter(notHero).slice(0, 10))
     cardSelector.setMaxCardSelected(1)
+
     let selectedCards = await cardSelector.show()
 
     let newDiscard = without(selectedCards, state.playerDiscard)

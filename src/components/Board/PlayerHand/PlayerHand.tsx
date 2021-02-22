@@ -15,7 +15,7 @@ export function PlayerHandComponent(props: PlayerHandProps) {
 
     function onCardSelect(index: number) {
         const selectedCard = props.cards[index] ?? null
-        if (notNil(selectedCard)) {
+        if (notNil(selectedCard) && props.canSelectCards) {
             props.onCardSelect(selectedCard)
         }
     }

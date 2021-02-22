@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { BoardComponent } from '../components/Board/Board'
-import { CardPreviewComponent } from '../components/Board/CardPreview/CardPreview'
-import { CardSelectorComponent, CardSelectorContextProvider } from '../components/Board/CardSelector/CardSelector'
+import { CardSelectorContextProvider } from '../components/Board/CardSelector/CardSelector'
 import { DECK_TYPE } from '../constants/constants'
 import { DECKS } from '../constants/decks'
 import { findCards } from '../helpers/debug'
@@ -24,7 +23,7 @@ function shuffled<T>(array: T[]): T[] {
 
 export function BoardPage(_: BoardPageProps = {}) {
 
-    const [playerDeck] = useState(findCards(['medic', 'catapult', 'catapult', 'catapult', 'scorch']))
+    const [playerDeck] = useState(findCards(['medic', 'medic', 'catapult', 'scorch', 'scorch']))
     const [enemyDeck] = useState(shuffled(mixDeckWithNeutral(DECK_TYPE.NORTHERN_REALMS)))
 
     return (

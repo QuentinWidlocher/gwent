@@ -21,6 +21,11 @@ export const ENEMY_LINES = [
     BATTLEFIELD_LINE.ENEMY_SIEGE,
 ]
 
+export enum SIDE {
+    PLAYER = "PLAYER",
+    ENEMY = "ENEMY",
+}
+
 export const LINES_NAME: Record<BATTLEFIELD_LINE, string> = {
     [BATTLEFIELD_LINE.ENEMY_SIEGE]: 'Siege',
     [BATTLEFIELD_LINE.ENEMY_RANGED]: 'Ranged',
