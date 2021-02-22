@@ -8,19 +8,22 @@ import { Battlefield } from '../types/aliases'
 import { Card, Modifier, PlacedCard } from '../types/card'
 import { GameState } from '../types/game-state'
 
-// Compute how many lines are worth taking in account the card modifiers
-export function computeBattlefieldPoints(battlefield: Battlefield): Battlefield {
+// Take a battlefield and return another one with all card modifiers applied
+export function getBattlefieldAfterModifiers(battlefield: Battlefield): Battlefield {
+
+    // We get a list of all the modifiers info from the battlefield
     let modifiers: [Modifier, PlacedCard, BATTLEFIELD_LINE][] = mapBattlefield(
-        battlefield,
-        (line, lineType) =>
+        battlefield, // We iterate over the battlefield
+        (line, lineType) => // for each lines
             line
-                .filter(card => notNil(card.modifier))
-                .map(card => [card.modifier, card, lineType] as [Modifier, PlacedCard, BATTLEFIELD_LINE])
+                .filter(card => notNil(card.modifier)) // We only focus on modifiers
+                .map(card => [card.modifier, card, lineType] as [Modifier, PlacedCard, BATTLEFIELD_LINE]) // and we extract info
     ).flat()
 
     // We sort the modifier starting from 0 to n
     let sortedModifiers = modifiers.sort(([m]) => m.priority).reverse()
 
+    // We give all cards their original strength and we remove their modifiers
     let resetBattlefied = mapOverBattlefield(battlefield, line =>
         line.map(card => ({
             ...card,
@@ -29,7 +32,7 @@ export function computeBattlefieldPoints(battlefield: Battlefield): Battlefield 
         }))
     )
 
-    // For each modifier, we provide its function the entire battlefield and the line where the card was placed
+    // For each modifier, we provide its function the entire battlefield (curField) and the line where the card was placed
     // and we get back the modified battlefield. We then provide this modified battlefield to the next modifier
     // and so on... The result is the battlefield modified by each modifier
     let newBattlefield = sortedModifiers.reduce(
@@ -40,7 +43,10 @@ export function computeBattlefieldPoints(battlefield: Battlefield): Battlefield 
     return newBattlefield
 }
 
-// Playing a card is independant from playing it on the board or activating a special card
+// Actively play a card if possible, apply the effects if any and return :
+// Boolean : If the card was played
+// GameState : The updated game state
+// Card[] : A list of card to play after this turn
 export async function getStateAfterPlayingCard(
     card: Card,
     currentGameState: GameState,
@@ -49,21 +55,21 @@ export async function getStateAfterPlayingCard(
     cardPlacedOn?: PlacedCard,
     cardSelectorContext?: CardSelectorContextProps
 ): Promise<[Boolean, GameState, Card[]]> {
+
+    // We make sure that whoever is playing, his side is the player side
+    // Example, if the opponent is playing, the effect is viewed from his perspective so playerDeck is
+    // really the opponnent's deck
     let gameState: GameState = fromPlayerPov ? currentGameState : swapPov(currentGameState)
     let cardsToPlayNext: Card[] = []
 
-    let handWithoutCard = removeCardFromHand(
-        card,
-        fromPlayerPov ? currentGameState.playerHand : currentGameState.enemyHand
-    )
-
-    gameState.playerHand = handWithoutCard
+    gameState.playerHand = removeCardFromHand(card, currentGameState.playerHand)
 
     // If the card has a special condition to be played and it fails, we return empty infos and a false to indicate failure
     if (notNil(card.canBePlayed) && !card.canBePlayed(card, gameState, linePlacedOn)) {
         return [false, currentGameState, cardsToPlayNext]
     }
 
+    // If the card can be played on a line, we add it
     if (notNil(linePlacedOn) && canBePlaced(card)) {
         let rowsWithCard: Battlefield = { ...currentGameState.battlefield }
         rowsWithCard[linePlacedOn].push(card)
@@ -72,15 +78,17 @@ export async function getStateAfterPlayingCard(
 
     // We update the game state if the card has an effect
     if (notNil(card.onCardPlayed)) {
-        let infos = await card.onCardPlayed(card, gameState, linePlacedOn, cardPlacedOn, cardSelectorContext)
+        // This can be the new game state, or a gamestate with a list of cards to play (example: medic effect)
+        let infos = await card.onCardPlayed(card, gameState, linePlacedOn, cardPlacedOn, (fromPlayerPov ? cardSelectorContext : undefined))
 
         if (Array.isArray(infos)) {
-            ;[gameState, cardsToPlayNext] = infos
+            [gameState, cardsToPlayNext] = infos
         } else {
             gameState = infos
         }
     }
 
+    // We swap the point of view again
     return [true, fromPlayerPov ? gameState : swapPov(gameState), cardsToPlayNext]
 }
 

@@ -3,7 +3,7 @@ import { CARD_TYPE, PLAYER_LINES } from '../../constants/constants'
 import { mapOverBattlefield } from '../../helpers/battlefield'
 import { canBePlaced, getStrength, notHero } from '../../helpers/cards'
 import { notNil } from '../../helpers/helpers'
-import { PlacedCard } from '../../types/card'
+import { Card, PlacedCard } from '../../types/card'
 import { SpecialEffect } from '../../types/effects'
 import { GameState } from '../../types/game-state'
 import { weatherModifier } from './modifiers'
@@ -86,10 +86,13 @@ export const decoyEffect: SpecialEffect = async (_, state, linePlacedOn, cardPla
     }
 }
 
-export const scorchEffect: SpecialEffect = async (_, state) => {
+export const scorchEffect: SpecialEffect = async (self, state) => {
     console.log('Scorch effect')
+
+    const notSelf = (card: Card) => card.id != self.id
+
     let cardsStrength = Object.values(state.battlefield).flatMap(line =>
-        line.filter(notHero).map(getStrength)
+        line.filter(notHero).filter(notSelf).map(getStrength)
     )
     let maxStrength = Math.max(...cardsStrength)
 
@@ -97,7 +100,7 @@ export const scorchEffect: SpecialEffect = async (_, state) => {
     let allRemovedEnemyCards: PlacedCard[] = []
 
     let scorchedBoard = mapOverBattlefield(state.battlefield, (line, lineType) => {
-        let removedCards = line.filter(card => notHero(card) && getStrength(card) >= maxStrength)
+        let removedCards = line.filter(card => notSelf(card) && notHero(card) && getStrength(card) >= maxStrength)
         
         if (PLAYER_LINES.includes(lineType)) {
             allRemovedPlayerCards = [...allRemovedPlayerCards, ...removedCards]

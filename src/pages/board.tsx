@@ -4,12 +4,21 @@ import { CardSelectorContextProvider } from '../components/Board/CardSelector/Ca
 import { DECK_TYPE } from '../constants/constants'
 import { DECKS } from '../constants/decks'
 import { findCards } from '../helpers/debug'
+import { Card } from '../types/card'
 interface BoardPageProps {
 
 }
 
 function mixDeckWithNeutral(type: DECK_TYPE) {
     return [...DECKS[DECK_TYPE.NEUTRAL], ...DECKS[type]]
+}
+
+function addIdentifier(id: string, deck: Card[]) {
+    return deck.map(c => ({...c, id: `${c.id}-${id}`}))
+}
+
+function getDeck(player: string, type: DECK_TYPE) {
+    return shuffled(addIdentifier(player, mixDeckWithNeutral(type)))
 }
 
 function shuffled<T>(array: T[]): T[] {
@@ -23,8 +32,8 @@ function shuffled<T>(array: T[]): T[] {
 
 export function BoardPage(_: BoardPageProps = {}) {
 
-    const [playerDeck] = useState(shuffled(mixDeckWithNeutral(DECK_TYPE.NORTHERN_REALMS)))
-    const [enemyDeck] = useState(shuffled(mixDeckWithNeutral(DECK_TYPE.NORTHERN_REALMS)))
+    const [playerDeck] = useState(getDeck('player', DECK_TYPE.NORTHERN_REALMS))
+    const [enemyDeck] = useState(getDeck('opponent', DECK_TYPE.NORTHERN_REALMS))
 
     return (
         <CardSelectorContextProvider>

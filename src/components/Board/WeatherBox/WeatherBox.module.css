@@ -1,5 +1,6 @@
 @value theme: "../../../theme.module.css";
 @value (card-width, card-height, board-color-dark, card-margin) from theme;
+@value (card) from "../Card/Card.module.css";
 
 /**/
 
@@ -9,6 +10,6 @@
     margin: 0 2rem;
 }
 
-.weatherBox * {
+.weatherBox .card {
     margin: card-margin;
 }

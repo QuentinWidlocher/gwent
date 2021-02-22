@@ -4,7 +4,7 @@ import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, EMPTY_BATTLEFIELD_ROWS, ENEMY_
 import { getTotalStrength } from "../../helpers/battlefield"
 import { canBePlaced, getAuthorizedLines } from "../../helpers/cards"
 import { notNil } from "../../helpers/helpers"
-import { autoPlay, computeBattlefieldPoints, getStateAfterPlayingCard } from "../../rules/battlefield"
+import { autoPlay, getBattlefieldAfterModifiers, getStateAfterPlayingCard } from "../../rules/battlefield"
 import { Card, PlacedCard } from "../../types/card"
 import { GameState } from "../../types/game-state"
 import { BattlefieldComponent } from "./Battlefield/Battlefield"
@@ -114,7 +114,7 @@ export function BoardComponent(props: BoardProps) {
         setEnemyDiscard(gameState.enemyDiscard)
         setEnemyHand(gameState.enemyHand)
         setWeatherCards(gameState.weatherCards)
-        setBattlefield(computeBattlefieldPoints(gameState.battlefield))
+        setBattlefield(getBattlefieldAfterModifiers(gameState.battlefield))
     }
 
     // Playing a card is independant from playing it on the board or activating a special card
@@ -199,6 +199,7 @@ export function BoardComponent(props: BoardProps) {
             setSelectedCard(mustPlayCard)
             setPlayerTurn(playedByPlayer)
 
+            // The player can only choose a card on his turn or if the next round is allow changing cards
             setLockPlayerHand(!playedByPlayer || notNil(mustPlayCard))
 
             // We just set up the next turn so we remove it from the list (it was the first on)
