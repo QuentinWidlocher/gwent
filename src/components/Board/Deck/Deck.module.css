@@ -1,0 +1,26 @@
+@value (card) from "../Card/Card.module.css";
+
+/**/
+
+.deckWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.deck {
+    composes: card;
+    background-image: url('https://gwent.one/image/assets/cardback/default-neutral.png');
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.title {
+    margin-bottom: 0.2rem;
+}
+
+.size {
+    padding: 0.15rem;
+    background-color: rgba(0,0,0,0.5);
+}

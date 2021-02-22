@@ -15,7 +15,7 @@ export function CardPreviewComponent(props: CardPreviewProps) {
 
         return <div
             style={cardStyle}
-            className={`${styles.cardPreview} ${props.className}`}
+            className={`${styles.cardPreview} ${props.className ?? ''}`}
             onClick={() => !!props.onClick && props.onClick(props.card!)}
         >
             {/* 

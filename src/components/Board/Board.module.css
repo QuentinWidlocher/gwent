@@ -1,5 +1,6 @@
 @value theme: "../../theme.module.css";
 @value (board-color-base) from theme;
+@value (cardPreview) from "./CardPreview/CardPreview.module.css";
 
 /**/
 
@@ -22,12 +23,29 @@
     grid-area: 1 / 2 / 2 / 3;
 }
 
+.playerHand {
+    grid-area: 2 / 2 / 3 / 3;
+}
+
+/* Deck zone */
+
 .decks {
     grid-area: 1 / 3 / 3 / 4;
     display: flex;
     flex-direction: column;
+    padding: 1rem;
 }
 
-.playerHand {
-    grid-area: 2 / 2 / 3 / 3;
+.cardPreviewZone {
+    display: flex;
+    flex: 1;
+}
+
+.cardPreviewZone .cardPreview {
+    width: 66%;
+}
+
+.deckLine {
+    display: flex;
+    justify-content: space-around;
 }

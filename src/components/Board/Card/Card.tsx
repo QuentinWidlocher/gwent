@@ -1,6 +1,5 @@
 
-import { PLACED_CARD_TYPE_NAMES } from "../../../constants/constants"
-import { getStrength, canBePlaced, cardIsPlaced } from "../../../helpers/cards"
+import { canBePlaced, cardIsPlaced, getStrength } from "../../../helpers/cards"
 import { notNil } from "../../../helpers/helpers"
 import { Card } from "../../../types/card"
 import styles from "./Card.module.css"

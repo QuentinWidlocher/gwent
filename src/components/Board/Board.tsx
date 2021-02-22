@@ -1,16 +1,17 @@
-import { clone, empty, isEmpty, not, tail } from "ramda"
+import { clone, isEmpty, not, tail } from "ramda"
 import React, { useEffect, useState } from "react"
-import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, EMPTY_BATTLEFIELD_ROWS, ENEMY_LINES, PLAYER_LINES, SIDE } from "../../constants/constants"
+import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, EMPTY_BATTLEFIELD_ROWS, ENEMY_LINES, PLAYER_LINES } from "../../constants/constants"
 import { getTotalStrength } from "../../helpers/battlefield"
-import { canBePlaced, getAuthorizedLines, lineFromEnemyPerspective } from "../../helpers/cards"
+import { canBePlaced, getAuthorizedLines } from "../../helpers/cards"
 import { notNil } from "../../helpers/helpers"
-import { autoPlay, autoPlayCard, computeBattlefieldPoints, getStateAfterPlayingCard } from "../../rules/battlefield"
+import { autoPlay, computeBattlefieldPoints, getStateAfterPlayingCard } from "../../rules/battlefield"
 import { Card, PlacedCard } from "../../types/card"
 import { GameState } from "../../types/game-state"
 import { BattlefieldComponent } from "./Battlefield/Battlefield"
 import styles from "./Board.module.css"
 import { CardPreviewComponent } from "./CardPreview/CardPreview"
-import { CardSelectorComponent, useCardSelectorContext } from "./CardSelector/CardSelector"
+import { useCardSelectorContext } from "./CardSelector/CardSelector"
+import { DeckComponent } from "./Deck/Deck"
 import { PlayerHandComponent } from "./PlayerHand/PlayerHand"
 import { ScoresComponent } from "./Scores/Scores"
 import { WeatherBoxComponent } from "./WeatherBox/WeatherBox"
@@ -262,7 +263,29 @@ export function BoardComponent(props: BoardProps) {
             </div>
             <div className={styles.decks}>
                 <button onClick={endRound}>End round</button>
-                <CardPreviewComponent card={selectedCard}></CardPreviewComponent>
+                <div className={styles.deckLine}>
+                    <DeckComponent
+                        title="Enemy Deck"
+                        cards={enemyDeck}
+                    />
+                    <DeckComponent
+                        title="Enemy Discard"
+                        cards={enemyDiscard}
+                    />
+                </div>
+                <div className={styles.cardPreviewZone}>
+                    <CardPreviewComponent card={selectedCard}></CardPreviewComponent>
+                </div>
+                <div className={styles.deckLine}>
+                    <DeckComponent
+                        title="Player Deck"
+                        cards={playerDeck}
+                    />
+                    <DeckComponent
+                        title="Player Discard"
+                        cards={playerDiscard}
+                    />
+                </div>
             </div>
         </div>
     )
