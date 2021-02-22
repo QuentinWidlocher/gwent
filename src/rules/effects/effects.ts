@@ -1,5 +1,5 @@
 import { isEmpty, isNil, not, without } from 'ramda'
-import { CARD_TYPE } from '../../constants/constants'
+import { CARD_TYPE, PLAYER_LINES } from '../../constants/constants'
 import { mapOverBattlefield } from '../../helpers/battlefield'
 import { canBePlaced, getStrength, notHero } from '../../helpers/cards'
 import { notNil } from '../../helpers/helpers'
@@ -93,15 +93,23 @@ export const scorchEffect: SpecialEffect = async (_, state) => {
     )
     let maxStrength = Math.max(...cardsStrength)
 
-    let allRemovedCards: PlacedCard[] = []
+    let allRemovedPlayerCards: PlacedCard[] = []
+    let allRemovedEnemyCards: PlacedCard[] = []
 
-    let scorchedBoard = mapOverBattlefield(state.battlefield, line => {
+    let scorchedBoard = mapOverBattlefield(state.battlefield, (line, lineType) => {
         let removedCards = line.filter(card => notHero(card) && getStrength(card) >= maxStrength)
-        allRemovedCards = [...allRemovedCards, ...removedCards]
+        
+        if (PLAYER_LINES.includes(lineType)) {
+            allRemovedPlayerCards = [...allRemovedPlayerCards, ...removedCards]
+        } else {
+            allRemovedEnemyCards = [...allRemovedEnemyCards, ...removedCards]
+        }
+
         return line.filter(card => not(removedCards.includes(card)))
     })
 
     state.battlefield = scorchedBoard
-    state.playerDiscard = [...allRemovedCards, ...state.playerDiscard]
+    state.playerDiscard = [...allRemovedPlayerCards, ...state.playerDiscard]
+    state.enemyDiscard = [...allRemovedEnemyCards, ...state.enemyDiscard]
     return state
 }
