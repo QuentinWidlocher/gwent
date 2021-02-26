@@ -63,6 +63,9 @@ export function BoardComponent(props: BoardProps) {
     const cardSelectorContext = useCardSelectorContext()
 
     useEffect(function enemyTurn() {
+
+        console.debug('Game State', getGameState())
+
         // The enemy only plays on his turn if he still have cards
         if (!playerTurn && enemyHand.length > 0) {
             let [selectedCard, selectedLine, cardPlacedOn] = autoPlay(getGameState())
@@ -189,8 +192,6 @@ export function BoardComponent(props: BoardProps) {
 
         // We need to work with all the planned turns
         let additionnalTurnsPlusNewOnes = [...additionnalTurns, ...newAdditionnalTurns]
-
-        console.debug('additionnalTurnsPlusNewOnes', additionnalTurnsPlusNewOnes)
 
         if (isEmpty(additionnalTurnsPlusNewOnes)) {
             // By default we just make the other side play

@@ -32,6 +32,8 @@ export function getBattlefieldAfterModifiers(battlefield: Battlefield): Battlefi
         }))
     )
 
+    console.groupCollapsed('Modifiers')
+
     // For each modifier, we provide its function the entire battlefield (curField) and the line where the card was placed
     // and we get back the modified battlefield. We then provide this modified battlefield to the next modifier
     // and so on... The result is the battlefield modified by each modifier
@@ -39,6 +41,8 @@ export function getBattlefieldAfterModifiers(battlefield: Battlefield): Battlefi
         (curField, [modifier, card, line]) => modifier.effect(card, line, curField),
         resetBattlefied
     )
+
+    console.groupEnd();
 
     return newBattlefield
 }
