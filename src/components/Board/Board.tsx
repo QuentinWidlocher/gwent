@@ -1,4 +1,4 @@
-import { clone, isEmpty, not, tail } from "ramda"
+import { add, clone, isEmpty, not, tail } from "ramda"
 import React, { useEffect, useState } from "react"
 import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, EMPTY_BATTLEFIELD_ROWS, ENEMY_LINES, PLAYER_LINES } from "../../constants/constants"
 import { getTotalStrength } from "../../helpers/battlefield"
@@ -58,6 +58,7 @@ export function BoardComponent(props: BoardProps) {
 
     const [playerTurn, setPlayerTurn] = useState<boolean>(Math.random() >= 0.5)
     const [additionnalTurns, setAdditionnalTurns] = useState<AdditionnalTurn[]>([])
+    const [turns, setTurns] = useState(0)
 
     const cardSelectorContext = useCardSelectorContext()
 
@@ -67,7 +68,7 @@ export function BoardComponent(props: BoardProps) {
             let [selectedCard, selectedLine, cardPlacedOn] = autoPlay(getGameState())
             playCard(selectedCard, false, selectedLine, cardPlacedOn)
         }
-    }, [playerTurn])
+    }, [playerTurn, additionnalTurns])
 
     // Trigger each time the battlefield change
     useEffect(function computePoints() {
@@ -94,25 +95,24 @@ export function BoardComponent(props: BoardProps) {
 
     function getGameState(): GameState {
         return {
-            playerDeck,
-            playerDiscard,
             playerHand,
-            enemyDeck,
-            enemyDiscard,
             enemyHand,
+            playerDeck,
+            enemyDeck,
+            playerDiscard,
+            enemyDiscard,
             weatherCards,
             battlefield
         }
     }
 
     function setGameState(gameState: GameState) {
-        setPlayerDeck(gameState.playerDeck)
-        setPlayerDeck(gameState.playerDeck)
-        setPlayerDiscard(gameState.playerDiscard)
         setPlayerHand(gameState.playerHand)
-        setEnemyDeck(gameState.enemyDeck)
-        setEnemyDiscard(gameState.enemyDiscard)
         setEnemyHand(gameState.enemyHand)
+        setPlayerDeck(gameState.playerDeck)
+        setEnemyDeck(gameState.enemyDeck)
+        setPlayerDiscard(gameState.playerDiscard)
+        setEnemyDiscard(gameState.enemyDiscard)
         setWeatherCards(gameState.weatherCards)
         setBattlefield(getBattlefieldAfterModifiers(gameState.battlefield))
     }
@@ -124,6 +124,8 @@ export function BoardComponent(props: BoardProps) {
 
         if (!couldPlay) {
             console.info('Card', card.title, 'could not be played')
+
+            endTurn([{ playedByPlayer: fromPlayerPov, mustPlayCard: null}])
             return
         }
 
@@ -188,6 +190,8 @@ export function BoardComponent(props: BoardProps) {
         // We need to work with all the planned turns
         let additionnalTurnsPlusNewOnes = [...additionnalTurns, ...newAdditionnalTurns]
 
+        console.debug('additionnalTurnsPlusNewOnes', additionnalTurnsPlusNewOnes)
+
         if (isEmpty(additionnalTurnsPlusNewOnes)) {
             // By default we just make the other side play
             setSelectedCard(null)
@@ -205,6 +209,10 @@ export function BoardComponent(props: BoardProps) {
             // We just set up the next turn so we remove it from the list (it was the first on)
             setAdditionnalTurns(tail(additionnalTurnsPlusNewOnes))
         }
+
+        console.groupEnd()
+        setTurns(add(1))
+        console.group(`Turn ${turns + 1}`)
     }
 
     function endRound() {

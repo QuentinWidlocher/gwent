@@ -54,15 +54,24 @@ export function getTotalStrength(battlefield: Battlefield, linesType: BATTLEFIEL
 
 export function swapPov(gameState: GameState): GameState {
     let swappedGameState = { ...gameState }
-    ;[swappedGameState.playerDeck, swappedGameState.enemyDeck] = [
+    ;[  
+        swappedGameState.playerDeck, 
+        swappedGameState.enemyDeck
+    ] = [
         swappedGameState.enemyDeck,
         swappedGameState.playerDeck,
     ]
-    ;[swappedGameState.playerDiscard, swappedGameState.enemyDiscard] = [
+    ;[
+        swappedGameState.playerDiscard, 
+        swappedGameState.enemyDiscard
+    ] = [
         swappedGameState.enemyDiscard,
         swappedGameState.playerDiscard,
     ]
-    ;[swappedGameState.playerHand, swappedGameState.enemyHand] = [
+    ;[
+        swappedGameState.playerHand, 
+        swappedGameState.enemyHand
+    ] = [
         swappedGameState.enemyHand,
         swappedGameState.playerHand,
     ]

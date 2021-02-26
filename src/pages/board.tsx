@@ -32,8 +32,8 @@ function shuffled<T>(array: T[]): T[] {
 
 export function BoardPage(_: BoardPageProps = {}) {
 
-    const [playerDeck] = useState(getDeck('player', DECK_TYPE.NORTHERN_REALMS))
-    const [enemyDeck] = useState(getDeck('opponent', DECK_TYPE.NORTHERN_REALMS))
+    const [playerDeck] = useState(findCards(['frost', 'infant']))//getDeck('player', DECK_TYPE.NORTHERN_REALMS))
+    const [enemyDeck] = useState(findCards(['frost', 'infant']))//getDeck('opponent', DECK_TYPE.NORTHERN_REALMS))
 
     return (
         <CardSelectorContextProvider>

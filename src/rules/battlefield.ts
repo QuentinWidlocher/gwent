@@ -62,7 +62,12 @@ export async function getStateAfterPlayingCard(
     let gameState: GameState = fromPlayerPov ? currentGameState : swapPov(currentGameState)
     let cardsToPlayNext: Card[] = []
 
-    gameState.playerHand = removeCardFromHand(card, currentGameState.playerHand)
+    let handWithoutCard = removeCardFromHand(
+        card,
+        fromPlayerPov ? currentGameState.playerHand : currentGameState.enemyHand
+    )
+
+    gameState.playerHand = handWithoutCard
 
     // If the card has a special condition to be played and it fails, we return empty infos and a false to indicate failure
     if (notNil(card.canBePlayed) && !card.canBePlayed(card, gameState, linePlacedOn)) {
