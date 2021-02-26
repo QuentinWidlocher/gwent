@@ -1,7 +1,5 @@
-import React, { FC } from "react"
+import React from "react"
 import { Card } from "../../../types/card"
-import { Round } from "../Board"
-import { CardComponent } from "../Card/Card"
 import styles from "./Deck.module.css"
 
 export type DeckProps = {

@@ -3,7 +3,6 @@ import { BoardComponent } from '../components/Board/Board'
 import { CardSelectorContextProvider } from '../components/Board/CardSelector/CardSelector'
 import { DECK_TYPE } from '../constants/constants'
 import { DECKS } from '../constants/decks'
-import { findCards } from '../helpers/debug'
 import { Card } from '../types/card'
 interface BoardPageProps {
 
