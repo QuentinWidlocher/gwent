@@ -51,25 +51,3 @@ export function notHero(card: Card): card is PlacedCard {
 export function isHero(card: Card): boolean {
     return !notHero(card)
 }
-
-export function lineFromEnemyPerspective(lineFromPlayerPerspective: BATTLEFIELD_LINE): BATTLEFIELD_LINE {
-    let fromPlayerPerspective = [
-        BATTLEFIELD_LINE.ENEMY_SIEGE,
-        BATTLEFIELD_LINE.ENEMY_RANGED,
-        BATTLEFIELD_LINE.ENEMY_MELEE,
-        BATTLEFIELD_LINE.PLAYER_MELEE,
-        BATTLEFIELD_LINE.PLAYER_RANGED,
-        BATTLEFIELD_LINE.PLAYER_SIEGE,
-    ]
-
-    let fromEnemyPerspective = [
-        BATTLEFIELD_LINE.PLAYER_SIEGE,
-        BATTLEFIELD_LINE.PLAYER_RANGED,
-        BATTLEFIELD_LINE.PLAYER_MELEE,
-        BATTLEFIELD_LINE.ENEMY_MELEE,
-        BATTLEFIELD_LINE.ENEMY_RANGED,
-        BATTLEFIELD_LINE.ENEMY_SIEGE,
-    ]
-
-    return fromEnemyPerspective[fromPlayerPerspective.findIndex(equals(lineFromPlayerPerspective))]
-}

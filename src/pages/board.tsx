@@ -13,7 +13,7 @@ function mixDeckWithNeutral(type: DECK_TYPE) {
 }
 
 function addIdentifier(id: string, deck: Card[]) {
-    return deck.map(c => ({...c, id: `${c.id}-${id}`}))
+    return deck.map(c => ({ ...c, id: `${c.id}_${id}` }))
 }
 
 function getDeck(player: string, type: DECK_TYPE) {

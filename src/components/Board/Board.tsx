@@ -123,12 +123,14 @@ export function BoardComponent(props: BoardProps) {
     // Playing a card is independant from playing it on the board or activating a special card
     async function playCard(card: Card, fromPlayerPov: boolean = true, linePlacedOn?: BATTLEFIELD_LINE, cardPlacedOn?: PlacedCard) {
 
+        console.info(fromPlayerPov ? 'Player' : 'Opponent', 'played', card.title)
+
         let [couldPlay, newGameState, cardsToPlayNext] = await getStateAfterPlayingCard(card, getGameState(), fromPlayerPov, linePlacedOn, cardPlacedOn, cardSelectorContext);
 
         if (!couldPlay) {
             console.info('Card', card.title, 'could not be played')
 
-            endTurn([{ playedByPlayer: fromPlayerPov, mustPlayCard: null}])
+            endTurn([{ playedByPlayer: fromPlayerPov, mustPlayCard: null }])
             return
         }
 
@@ -140,8 +142,6 @@ export function BoardComponent(props: BoardProps) {
                 mustPlayCard: cardToPlayNext
             }))
         }
-
-        console.info(fromPlayerPov ? 'Player' : 'Opponent', 'played', card.title)
 
         setGameState(newGameState)
 

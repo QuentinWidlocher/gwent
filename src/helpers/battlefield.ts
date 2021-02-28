@@ -1,8 +1,8 @@
-import { clone, sum } from 'ramda'
+import { clone, equals, sum } from 'ramda'
 import { BATTLEFIELD_LINE, EMPTY_BATTLEFIELD_ROWS } from '../constants/constants'
 import { Battlefield, BattlefieldLine } from '../types/aliases'
 import { GameState } from '../types/game-state'
-import { cardIsPlaced, getStrength, lineFromEnemyPerspective } from './cards'
+import { cardIsPlaced, getStrength } from './cards'
 import { enumKeys } from './helpers'
 
 export function mapOverBattlefield(
@@ -37,7 +37,7 @@ export function battlefieldFromEnemyPerspective(battlefield: Battlefield): Battl
     let newBattlefield = clone(EMPTY_BATTLEFIELD_ROWS)
 
     for (let lineType of enumKeys(BATTLEFIELD_LINE)) {
-        newBattlefield[lineFromEnemyPerspective(lineType as BATTLEFIELD_LINE)] = battlefield[lineType]
+        newBattlefield[swapLinePov(lineType as BATTLEFIELD_LINE)] = battlefield[lineType]
     }
 
     return newBattlefield
@@ -53,27 +53,43 @@ export function getTotalStrength(battlefield: Battlefield, linesType: BATTLEFIEL
 }
 
 export function swapPov(gameState: GameState): GameState {
-    let swappedGameState = { ...gameState }
-    ;[  
-        swappedGameState.playerDeck, 
-        swappedGameState.enemyDeck
-    ] = [
-        swappedGameState.enemyDeck,
-        swappedGameState.playerDeck,
+    return {
+        playerHand: [...gameState.enemyHand],
+        enemyHand: [...gameState.playerHand],
+        playerDeck: [...gameState.enemyDeck],
+        enemyDeck: [...gameState.playerDeck],
+        playerDiscard: [...gameState.enemyDiscard],
+        enemyDiscard: [...gameState.playerDiscard],
+        weatherCards: [...gameState.weatherCards],
+        battlefield: {
+            [BATTLEFIELD_LINE.ENEMY_SIEGE]: [...gameState.battlefield.PLAYER_SIEGE],
+            [BATTLEFIELD_LINE.ENEMY_RANGED]: [...gameState.battlefield.PLAYER_RANGED],
+            [BATTLEFIELD_LINE.ENEMY_MELEE]: [...gameState.battlefield.PLAYER_MELEE],
+            [BATTLEFIELD_LINE.PLAYER_MELEE]: [...gameState.battlefield.ENEMY_MELEE],
+            [BATTLEFIELD_LINE.PLAYER_RANGED]: [...gameState.battlefield.ENEMY_RANGED],
+            [BATTLEFIELD_LINE.PLAYER_SIEGE]: [...gameState.battlefield.ENEMY_SIEGE],
+        },
+    }
+}
+
+export function swapLinePov(lineFromPlayerPerspective: BATTLEFIELD_LINE): BATTLEFIELD_LINE {
+    let fromPlayerPerspective = [
+        BATTLEFIELD_LINE.ENEMY_SIEGE,
+        BATTLEFIELD_LINE.ENEMY_RANGED,
+        BATTLEFIELD_LINE.ENEMY_MELEE,
+        BATTLEFIELD_LINE.PLAYER_MELEE,
+        BATTLEFIELD_LINE.PLAYER_RANGED,
+        BATTLEFIELD_LINE.PLAYER_SIEGE,
     ]
-    ;[
-        swappedGameState.playerDiscard, 
-        swappedGameState.enemyDiscard
-    ] = [
-        swappedGameState.enemyDiscard,
-        swappedGameState.playerDiscard,
+
+    let fromEnemyPerspective = [
+        BATTLEFIELD_LINE.PLAYER_SIEGE,
+        BATTLEFIELD_LINE.PLAYER_RANGED,
+        BATTLEFIELD_LINE.PLAYER_MELEE,
+        BATTLEFIELD_LINE.ENEMY_MELEE,
+        BATTLEFIELD_LINE.ENEMY_RANGED,
+        BATTLEFIELD_LINE.ENEMY_SIEGE,
     ]
-    ;[
-        swappedGameState.playerHand, 
-        swappedGameState.enemyHand
-    ] = [
-        swappedGameState.enemyHand,
-        swappedGameState.playerHand,
-    ]
-    return swappedGameState
+
+    return fromEnemyPerspective[fromPlayerPerspective.findIndex(equals(lineFromPlayerPerspective))]
 }

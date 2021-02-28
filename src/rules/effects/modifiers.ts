@@ -11,7 +11,7 @@ import { notNil } from '../../helpers/helpers'
 import { ModifierEffect } from '../../types/effects'
 
 export const moraleBoostModifier: ModifierEffect = (self, linePlacedOn, battlefield) => {
-    console.log('Morale Boost modifier')
+    console.log('Morale Boost modifier from', self.title, 'on line', linePlacedOn)
     return mapOverBattlefield(battlefield, (line, lineType) => {
         if (lineType == linePlacedOn) {
             return line.map(card => {
@@ -32,7 +32,7 @@ export const moraleBoostModifier: ModifierEffect = (self, linePlacedOn, battlefi
 }
 
 export const tightBondModifier: ModifierEffect = (self, linePlacedOn, battlefield) => {
-    console.log('Tight Bond modifier')
+    console.log('Tight Bond modifier from', self.title, `(${self.id})`)
     return mapOverBattlefield(battlefield, (line, lineType) => {
         if (lineType == linePlacedOn) {
             return line.map(card => {
@@ -59,7 +59,7 @@ export const tightBondModifier: ModifierEffect = (self, linePlacedOn, battlefiel
 }
 
 export const weatherModifier: ModifierEffect = (self, _, battlefield) => {
-    console.log('Weather modifier')
+    console.log('Weather modifier by', self.title)
     return mapOverBattlefield(battlefield, (line, lineType) => {
         if (notNil(self.authorizedLines) && self.authorizedLines.includes(lineType)) {
             return line.map(card =>
@@ -80,7 +80,7 @@ export const weatherModifier: ModifierEffect = (self, _, battlefield) => {
 }
 
 export const commandersHornModifier: ModifierEffect = (_, linePlacedOn, battlefield) => {
-    console.log('Horn modifier')
+    console.log('Horn modifier on line', linePlacedOn)
     return mapOverBattlefield(battlefield, (line, lineType) => {
         if (lineType == linePlacedOn) {
             return line.map(card =>

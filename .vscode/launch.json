@@ -5,11 +5,31 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "firefox",
+            "request": "attach",
+            "name": "Attach",
+            "port": 3000
+        },
+        {
+            "name": "Attach to Chrome",
+            "port": 9222,
+            "request": "attach",
+            "type": "pwa-chrome",
+            "webRoot": "${workspaceFolder}/src"
+        },
+        {
             "type": "pwa-chrome",
             "request": "launch",
-            "name": "Launch Chrome against localhost",
-            "url": "http://localhost:3000   ",
-            "webRoot": "${workspaceFolder}"
+            "name": "Launch Chrome against localhost:3000",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}/src"
+        },
+        {
+            "name": "Launch Firefox against localhost:3000",
+            "url": "http://localhost:3000",
+            "type": "firefox",
+            "request": "launch",
+            "reAttach": true
         }
     ]
 }
