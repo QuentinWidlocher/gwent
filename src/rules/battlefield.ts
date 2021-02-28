@@ -1,8 +1,8 @@
-import { isNil } from 'ramda'
+import { isNil, sum } from 'ramda'
 import { CardSelectorContextProps } from '../components/Board/CardSelector/CardSelector'
 import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, LINES_NAME, PLAYER_LINES } from '../constants/constants'
 import { mapBattlefield, mapOverBattlefield, swapLinePov, swapPov } from '../helpers/battlefield'
-import { canBePlaced } from '../helpers/cards'
+import { canBePlaced, getStrength } from '../helpers/cards'
 import { removeCardFromHand } from '../helpers/hand'
 import { notNil } from '../helpers/helpers'
 import { Battlefield } from '../types/aliases'
@@ -143,4 +143,36 @@ export function autoPlayCard(selectedCard: Card, fromPlayerPov: boolean = false)
     } else {
         return [selectedCard, undefined, undefined]
     }
+}
+
+export function shouldEnemyPassTheTurn(
+    playerPoints: number,
+    enemyPoints: number,
+    playerHasPassed: boolean,
+    lastTurn: boolean,
+    gameState: GameState
+): boolean {
+    // No points in surrending the last turn
+    if (lastTurn) {
+        return false
+    }
+
+    // If the player has surrendered and we are leading, we stop here
+    if (playerHasPassed && playerPoints < enemyPoints) {
+        return true
+    }
+
+    let playerHandStrength = sum(gameState.playerHand.filter(canBePlaced).map(getStrength))
+    let enemyHandStrength = sum(gameState.enemyHand.filter(canBePlaced).map(getStrength))
+
+    if (
+        playerPoints > enemyPoints && // Player has more points
+        playerHandStrength < enemyHandStrength && // and a better hand
+        Math.random() < 0.7
+    ) {
+        // The enemy should surrender this turn to have the advantage the next turn
+        return true
+    }
+
+    return false
 }

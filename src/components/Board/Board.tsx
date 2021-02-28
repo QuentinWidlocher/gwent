@@ -1,10 +1,10 @@
-import { add, clone, isEmpty, not, tail } from "ramda"
+import { add, append, clone, isEmpty, not, tail } from "ramda"
 import React, { useEffect, useState } from "react"
 import { BATTLEFIELD_LINE, CARD_AUTHORIZED_LINES, EMPTY_BATTLEFIELD_ROWS, ENEMY_LINES, PLAYER_LINES } from "../../constants/constants"
 import { getTotalStrength } from "../../helpers/battlefield"
 import { canBePlaced, getAuthorizedLines } from "../../helpers/cards"
 import { notNil } from "../../helpers/helpers"
-import { autoPlay, getBattlefieldAfterModifiers, getStateAfterPlayingCard } from "../../rules/battlefield"
+import { autoPlay, getBattlefieldAfterModifiers, getStateAfterPlayingCard, shouldEnemyPassTheTurn } from "../../rules/battlefield"
 import { Card, PlacedCard } from "../../types/card"
 import { GameState } from "../../types/game-state"
 import { BattlefieldComponent } from "./Battlefield/Battlefield"
@@ -54,6 +54,9 @@ export function BoardComponent(props: BoardProps) {
     const [playerPoints, setPlayerPoints] = useState(0)
     const [enemyPoints, setEnemyPoints] = useState(0)
 
+    const [playerHasPassed, setPlayerHasPassed] = useState(false)
+    const [enemyHasPassed, setEnemyHasPassed] = useState(false)
+
     const [rounds, setRounds] = useState<Round[]>([])
 
     const [playerTurn, setPlayerTurn] = useState<boolean>(Math.random() >= 0.5)
@@ -62,16 +65,48 @@ export function BoardComponent(props: BoardProps) {
 
     const cardSelectorContext = useCardSelectorContext()
 
-    useEffect(function enemyTurn() {
+    useEffect(function newTurn() {
 
-        console.debug('Game State', getGameState())
+        let gameState = getGameState()
+        console.debug('Game State', gameState)
 
         // The enemy only plays on his turn if he still have cards
         if (!playerTurn && enemyHand.length > 0) {
-            let [selectedCard, selectedLine, cardPlacedOn] = autoPlay(getGameState())
-            playCard(selectedCard, false, selectedLine, cardPlacedOn)
+
+            // Count the winned rounds (excluding draws of course)
+            let enemyVictories = rounds.filter(({ enemyPoints, playerPoints }) => enemyPoints > playerPoints).length
+            let playerVictories = rounds.filter(({ enemyPoints, playerPoints }) => enemyPoints < playerPoints).length
+
+            let itsLastRound = enemyVictories > 0 || playerVictories > 0
+
+            if (shouldEnemyPassTheTurn(playerPoints, enemyPoints, playerHasPassed, itsLastRound, gameState)) {
+                setEnemyHasPassed(true)
+            } else {
+                let [selectedCard, selectedLine, cardPlacedOn] = autoPlay(gameState)
+                playCard(selectedCard, false, selectedLine, cardPlacedOn)
+            }
         }
     }, [playerTurn, additionnalTurns])
+
+    // Check if we should begin another round
+    useEffect(function endRound() {
+        if (playerHasPassed && enemyHasPassed) {
+            if (rounds.length >= 3) {
+                return
+            }
+
+            setRounds([...rounds, { playerPoints, enemyPoints }])
+
+            // Put all cards from the battlefield into the discards
+            setEnemyDiscard([...ENEMY_LINES.flatMap(line => battlefield[line]), ...enemyDiscard])
+            setPlayerDiscard([...PLAYER_LINES.flatMap(line => battlefield[line]), ...playerDiscard])
+
+            // Empty the battlefield
+            setBattlefield({ ...EMPTY_BATTLEFIELD_ROWS })
+
+            setWeatherCards([])
+        }
+    }, [playerHasPassed, enemyHasPassed])
 
     // Trigger each time the battlefield change
     useEffect(function computePoints() {
@@ -216,14 +251,14 @@ export function BoardComponent(props: BoardProps) {
         console.group(`Turn ${turns + 1}`)
     }
 
-    function endRound() {
-        if (rounds.length >= 3) {
-            return
-        }
+    function pass() {
+        if (playerTurn) {
+            setPlayerHasPassed(true)
+            setPlayerTurn(false)
 
-        setRounds([...rounds, { playerPoints, enemyPoints }])
-        setBattlefield(clone(EMPTY_BATTLEFIELD_ROWS))
-        setWeatherCards([])
+            // FIXME : Ugly hack to make the enemy play 
+            setAdditionnalTurns(Array(enemyHand.length * 2).fill({ playedByPlayer: false, mustPlayCard: null }))
+        }
     }
 
     return (
@@ -272,7 +307,7 @@ export function BoardComponent(props: BoardProps) {
                 />
             </div>
             <div className={styles.decks}>
-                <button onClick={endRound}>End round</button>
+                <button onClick={() => pass()}>Pass</button>
                 <div className={styles.deckLine}>
                     <DeckComponent
                         title="Enemy Deck"
