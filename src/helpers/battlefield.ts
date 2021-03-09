@@ -1,6 +1,9 @@
-import { clone, equals, sum } from 'ramda'
-import { BATTLEFIELD_LINE, EMPTY_BATTLEFIELD_ROWS } from '../constants/constants'
+import { clone, equals, props, sum } from 'ramda'
+import { useState } from 'react'
+import { BATTLEFIELD_LINE, EMPTY_BATTLEFIELD_ROWS, ENEMY_LINES, PLAYER_LINES } from '../constants/constants'
+import { getBattlefieldAfterModifiers } from '../rules/battlefield'
 import { Battlefield, BattlefieldLine } from '../types/aliases'
+import { PlacedCard, Card } from '../types/card'
 import { GameState } from '../types/game-state'
 import { cardIsPlaced, getStrength } from './cards'
 import { enumKeys } from './helpers'
@@ -92,4 +95,60 @@ export function swapLinePov(lineFromPlayerPerspective: BATTLEFIELD_LINE): BATTLE
     ]
 
     return fromEnemyPerspective[fromPlayerPerspective.findIndex(equals(lineFromPlayerPerspective))]
+}
+
+export function useGameState(initialPlayerDeck: Card[], initialEnemyDeck: Card[]): {
+    gameState: GameState,
+    setGameState: (gameState: GameState) => void,
+    clearBattlefield: () => void
+} {
+    const [battlefield, setBattlefield] = useState(clone(EMPTY_BATTLEFIELD_ROWS))
+
+    const [weatherCards, setWeatherCards] = useState<PlacedCard[]>([])
+
+    const [playerHand, setPlayerHand] = useState<Card[]>(initialPlayerDeck.slice(0, 10))
+    const [enemyHand, setEnemyHand] = useState<Card[]>(initialEnemyDeck.slice(0, 10))
+
+    const [playerDeck, setPlayerDeck] = useState<Card[]>(initialPlayerDeck.slice(10))
+    const [enemyDeck, setEnemyDeck] = useState<Card[]>(initialEnemyDeck.slice(10))
+
+    const [playerDiscard, setPlayerDiscard] = useState<Card[]>([])
+    const [enemyDiscard, setEnemyDiscard] = useState<Card[]>([])
+
+    function setGameState(gameState: GameState) {
+        setPlayerHand(gameState.playerHand)
+        setEnemyHand(gameState.enemyHand)
+        setPlayerDeck(gameState.playerDeck)
+        setEnemyDeck(gameState.enemyDeck)
+        setPlayerDiscard(gameState.playerDiscard)
+        setEnemyDiscard(gameState.enemyDiscard)
+        setWeatherCards(gameState.weatherCards)
+        setBattlefield(getBattlefieldAfterModifiers(gameState.battlefield))
+    }
+
+    function clearBattlefield() {
+        // Put all cards from the battlefield into the discards
+        setEnemyDiscard([...ENEMY_LINES.flatMap(line => battlefield[line]), ...enemyDiscard])
+        setPlayerDiscard([...PLAYER_LINES.flatMap(line => battlefield[line]), ...playerDiscard])
+
+        // Empty the battlefield
+        setBattlefield({ ...EMPTY_BATTLEFIELD_ROWS })
+
+        setWeatherCards([])
+    }
+
+    return {
+        gameState: {
+            playerHand,
+            enemyHand,
+            playerDeck,
+            enemyDeck,
+            playerDiscard,
+            enemyDiscard,
+            weatherCards,
+            battlefield
+        },
+        setGameState,
+        clearBattlefield
+    }
 }

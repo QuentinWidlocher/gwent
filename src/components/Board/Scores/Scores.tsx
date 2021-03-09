@@ -4,7 +4,9 @@ import styles from "./Scores.module.css"
 
 export type ScoresProps = {
     enemyPoints: number
+    enemyHasPassed: boolean
     playerPoints: number
+    playerHasPassed: boolean
     rounds: Round[]
 }
 
@@ -21,6 +23,7 @@ export const ScoresComponent: FC<ScoresProps> = (props) => {
                 <span className={isEnemyWinning ? styles.winning : ''}>
                     Your opponent : {props.enemyPoints}
                 </span>
+                { props.enemyHasPassed && <span>Passed</span> }
                 <span>
                     {Array(enemyVictories).fill('•').join('')}
                 </span>
@@ -32,6 +35,7 @@ export const ScoresComponent: FC<ScoresProps> = (props) => {
                 <span className={isPlayerWinning ? styles.winning : ''}>
                     You : {props.playerPoints}
                 </span>
+                { props.playerHasPassed && <span>Passed</span>}
                 <span>
                     {Array(playerVictories).fill('•').join('')}
                 </span>

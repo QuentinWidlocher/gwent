@@ -152,8 +152,8 @@ export function shouldEnemyPassTheTurn(
     lastTurn: boolean,
     gameState: GameState
 ): boolean {
-    // No points in surrending the last turn
-    if (lastTurn) {
+    // No points in surrending the last turn if the player is stil playing
+    if (lastTurn && !playerHasPassed) {
         return false
     }
 
@@ -164,11 +164,13 @@ export function shouldEnemyPassTheTurn(
 
     let playerHandStrength = sum(gameState.playerHand.filter(canBePlaced).map(getStrength))
     let enemyHandStrength = sum(gameState.enemyHand.filter(canBePlaced).map(getStrength))
+    let totalPlacedCards = sum(mapBattlefield(gameState.battlefield, l => l.length))
 
     if (
+        totalPlacedCards >= 4 && // If the game last a little bit
         playerPoints > enemyPoints && // Player has more points
-        playerHandStrength < enemyHandStrength && // and a better hand
-        Math.random() < 0.7
+        playerHandStrength < enemyHandStrength && // but a worse hand
+        Math.random() < 0.5
     ) {
         // The enemy should surrender this turn to have the advantage the next turn
         return true
