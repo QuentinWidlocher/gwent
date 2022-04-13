@@ -1,0 +1,60 @@
+@value theme: "../../../../theme.module.css";
+@value (card-width, card-height, board-color-base, board-color-dark, board-color-light, card-margin) from theme;
+@value (card) from "../../Card/Card.module.css";
+
+/**/
+
+.line {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background-color: board-color-base;
+    border: solid 2px board-color-dark;
+    height: 100%;
+    box-sizing: border-box;
+    min-height: card-height;
+}
+
+.dark {
+    background-color: board-color-dark;
+}
+
+.canBeSelected:hover {
+    background-color: board-color-light;
+}
+
+.modifiers {
+    height: card-height;
+    width: card-width;
+    margin-left: 1rem;
+    background-color: board-color-dark;
+    border: solid 2px board-color-base;
+}
+
+.cards {
+    flex: 1;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.cards .card {
+    margin: card-margin;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+}
+
+.strength {
+    margin-left: 0.5rem;
+    font-weight: bold;
+    font-size: large;
+    border: solid 2px white;
+    border-radius: 100%;
+    padding: 0.5rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    text-align: center;
+}

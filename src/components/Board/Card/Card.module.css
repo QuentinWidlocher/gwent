@@ -1,0 +1,81 @@
+@value theme: "../../../theme.module.css";
+@value (card-width, card-height, card-hero-color) from theme;
+
+/**/
+
+@value card-emphasis-blend-mode: overlay;
+@value card-emphasis-color: hsl(395, 15%, 50%);
+@value card-emphasis-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+
+/**/
+
+.card {
+    background-image: var(--cardUrl);
+    background-size: cover;
+    height: card-height;
+    width: card-width;
+    border-radius: 0.3rem;
+    background-color: white;
+    transition: transform 0.1s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.selected {
+    background-blend-mode: card-emphasis-blend-mode;
+    background-color: card-emphasis-color;
+    box-shadow: card-emphasis-shadow;
+    transform: translateY(-1rem);
+}
+
+.selectable {
+    cursor: pointer;
+}
+
+.selectable:hover:not(.selected) {
+    background-blend-mode: card-emphasis-blend-mode;
+    background-color: card-emphasis-color;
+    box-shadow: card-emphasis-shadow;
+    transform: translateY(-3px);
+}
+
+.strength {
+    color: black;
+    text-align: center;
+    border-radius: 100%;
+    height: 15px;
+    width: 15px;
+    background-color: white;
+    font-size: 11px;
+    margin: 3px;
+    box-shadow: inset 0px -3px 5px rgba(0, 0, 0, 0.3);
+}
+
+.strength.bonus {
+    color: green;
+    border-color: green;
+}
+
+.strength.malus {
+    color: red;
+    border-color: red;
+}
+
+.title {
+    font-size: smaller;
+    text-align: center;
+    margin: 0;
+    width: 95%;
+    overflow: hidden;
+    text-overflow: '-';
+}
+
+.type {
+    font-size: x-small;
+    font-style: italic;
+    margin: 0;
+}
+
+.hero .strength,
+.hero .title {
+    border-color: card-hero-color;
+    color: card-hero-color;
+}
